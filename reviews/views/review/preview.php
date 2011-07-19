@@ -27,5 +27,9 @@
 		echo "<span class='reviewer'>Anonymous</span>";
 	}
 	echo " at ".Yii::app()->format->formatDateTime($model->timeAdded);
+	$this->widget("blocks.moderator.widgets.AModerationButtons",array(
+		"model" => $model,
+		"htmlOptions" => array("class" => "right")
+	));
 	?>
 </article>

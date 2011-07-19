@@ -130,6 +130,7 @@ class AModeratable extends CActiveRecordBehavior implements IAModeratable {
 	 */
 	public function getModerationItem() {
 		if ($this->_moderationItem === null) {
+		
 			$this->_moderationItem = AModerationItem::model()->ownedBy($this->owner)->find();
 			if (!is_object($this->_moderationItem)) {
 				$this->_moderationItem = false;

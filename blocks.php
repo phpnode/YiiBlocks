@@ -10,6 +10,7 @@ $components = array(
 			"ownable",
 			"nameable",
 			"linkable",
+			"services",
 			"ratings.interfaces",
 			"ratings.models",
 			"ratings.components",

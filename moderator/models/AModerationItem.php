@@ -37,6 +37,20 @@ class AModerationItem extends CActiveRecord {
 		);
 	
 	/**
+	 * Returns the behaviors attached to this model,
+	 * @see CActiveRecord::behaviors();
+	 * @return array the behaviors to attach
+	 */
+	public function behaviors() {
+		return array(
+				
+				"linkable" => array(
+					"class" => "blocks.linkable.ALinkable",
+					"controllerRoute" => "/moderator/moderation"
+				),
+		);
+	}
+	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className the class name to instantiate
 	 * @return Vote the static model class

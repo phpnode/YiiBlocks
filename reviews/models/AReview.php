@@ -20,7 +20,7 @@ Yii::import("blocks.voting.interfaces.IAVote");
  * @author Charles Pick
  * @package blocks.reviews
  */
-class AReview extends CActiveRecord implements IARating {
+class AReview extends CActiveRecord implements IARating, IAModeratable {
 	
 	/**
 	 * The behaviors attached to this model.
@@ -57,6 +57,31 @@ class AReview extends CActiveRecord implements IARating {
 		}
 		return $behaviors;
 	}
+	
+	/**
+	 * Gets the id of the object being moderated.
+	 * @return integer the id of the object being moderated.
+	 */
+	public function getId() {
+		return $this->id;
+	}
+	
+	/**
+	 * Gets the name of the class that is being moderated.
+	 * @return string the owner model class name
+	 */
+	public function getClassName() {
+		return __CLASS__;
+	}
+	
+	/**
+	 * Whether this particular object should be moderated.
+	 * @return boolean true if the object should be moderated
+	 */
+	public function isModeratable() {
+		return true;
+	}
+	
 	
 	/**
 	 * The beforeSave event, sets the reviewer ip, user agent 
