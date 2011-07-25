@@ -1,18 +1,18 @@
 <?php
-Yii::import("blocks.voting.interfaces.*");
-Yii::import("blocks.voting.models.*");
-Yii::import("blocks.voting.components.*");
+Yii::import("packages.voting.interfaces.*");
+Yii::import("packages.voting.models.*");
+Yii::import("packages.voting.components.*");
 /**
  * Holds functionality related to voting.
  * Votes can be attached to other models and are managed via the vote controller.
- * @package blocks.reviews
+ * @package packages.voting
  * @author Charles Pick
  */
 class VotingModule extends CWebModule {
 	
 	/**
-	 * The name of the reviews table
-	 * Defaults to "reviews"
+	 * The name of the votes table
+	 * Defaults to "votes"
 	 * @var string 
 	 */
 	public $voteTable = "votes";

@@ -4,7 +4,7 @@
  * Nameable objects implement the getName() and setName() methods to
  * allow consistent access to the "name" of objects.
  * @author Charles Pick
- * @package blocks.namable
+ * @package packages.namable
  */
 interface IANameable {
 	/**

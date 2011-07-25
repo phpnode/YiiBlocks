@@ -1,14 +1,14 @@
 <?php
-Yii::import("blocks.moderator.ModeratorModule",true);
-Yii::import("blocks.ratings.RatingsModule",true);
-Yii::import("blocks.voting.VotingModule",true);
-Yii::import("blocks.reviews.models.*");
-Yii::import("blocks.reviews.interfaces.*");
-Yii::import("blocks.reviews.components.*");
+Yii::import("packages.moderator.ModeratorModule",true);
+Yii::import("packages.ratings.RatingsModule",true);
+Yii::import("packages.voting.VotingModule",true);
+Yii::import("packages.reviews.models.*");
+Yii::import("packages.reviews.interfaces.*");
+Yii::import("packages.reviews.components.*");
 /**
  * Holds functionality relating to user supplied reviews.
  * Reviews can be attached to other models and are managed via the review controller.
- * @package blocks.reviews
+ * @package packages.reviews
  * @author Charles Pick
  */
 class ReviewsModule extends CWebModule {

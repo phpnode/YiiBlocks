@@ -19,6 +19,11 @@ class AVotable extends CActiveRecordBehavior implements IAVotable {
 	protected $_userVoteScore;
 	
 	/**
+	 * Contains the user vote model
+	 * @var AVote
+	 */
+	protected $_userVote;
+	/**
 	 * Gets the id of the object being moderated.
 	 * @return integer the id of the object being moderated.
 	 */
@@ -34,223 +39,7 @@ class AVotable extends CActiveRecordBehavior implements IAVotable {
 		return get_class($this->owner);
 	}
 	
-	/**
-	 * Named Scope: Return the vote information with the main query to
-	 * save additional vote lookup queries later.
-	 * To use this the owner model have the required public properties:
-	 * $_userHasVoted,
-	 * $_userVoteScore,
-	 * $_totalVotes and
-	 * $_totalVoteScore
-	 * @return CActiveRecord The owner object
-	 */
-	public function withVoteInfo() {
-		if (
-			!property_exists($this->owner,"_userHasVoted") ||
-			!property_exists($this->owner,"_userVoteScore") ||
-			!property_exists($this->owner,"_totalVotes") || 
-			!property_exists($this->owner,"_totalVoteScore") 
-			) {
-			throw new CException(get_class($this->owner)." does not have the required public properties, \$_userHasVoted, \$_userVoteScore, \$_totalVotes and \$_totalVoteScore");
-		}
-		
-		$voteTable = Yii::app()->getModule('voting')->voteTable;
-		$id = $this->owner->tableSchema->primaryKey;
-		$criteria = new CDbCriteria;
-		$criteria->join = " LEFT JOIN $voteTable ON $voteTable.ownerModel = :voteOwnerModel AND $voteTable.ownerId = t.$id";
-		$criteria->select = "t.*,
-							IF($voteTable.id IS NULL, 0, 1) AS _userHasVoted,
-							IF($voteTable.score IS NULL, 0, $voteTable.score) AS _userVoteScore,
-							(SELECT COUNT($voteTable.id) + 1 FROM $voteTable WHERE $voteTable.ownerModel = :voteOwnerModel AND $voteTable.ownerId = t.id) as _totalVotes,
-							IFNULL((SELECT SUM($voteTable.score) FROM $voteTable WHERE $voteTable.ownerModel = :voteOwnerModel AND $voteTable.ownerId = t.id), 0) + 1 as _totalVoteScore
-							";
-		
-		
-		if (Yii::app()->getModule('voting')->requiresLogin) {
-			
-			$criteria->join .= " AND $voteTable.voterId = :voterId";
-			$criteria->params[":voterId"] = Yii::app()->user->id;
-		}
-		else {
-			$criteria->join .= " AND $voteTable.voterIP = :voterIP AND $voteTable.voterUserAgent = :voterUserAgent";
-			$criteria->params[":voterIP"] = $_SERVER['REMOTE_ADDR'];
-			$criteria->params[":voterUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
-		}
-		$criteria->params[":voteOwnerModel"] = get_class($this->owner);
-		
-		$this->owner->getDbCriteria()->mergeWith($criteria);
-		
-		return $this->owner;
-	}
 	
-	/**
-	 * Determine whether the current user has voted for this item or not. 
-	 * @return boolean whether the current use has voted or not
-	 */
-	public function getUserHasVoted() {
-		if (Yii::app()->getModule('voting')->requiresLogin && Yii::app()->user->isGuest) {
-			return false;
-		}
-		if (property_exists($this->owner,"_userHasVoted")) {
-			$object =& $this->owner;
-		}
-		else {
-			$object =& $this;
-		}
-		if ($object->_userHasVoted === null) {
-			$criteria = new CDbCriteria;
-			if (Yii::app()->getModule('voting')->requiresLogin) {
-				$criteria->addCondition("voterId = :voterId");
-				$criteria->params[":voterId"] = Yii::app()->user->id;
-			}
-			else {
-				$criteria->addCondition("voterIP = :voterIP AND voterUserAgent = :voterUserAgent");
-				$criteria->params[":voterIP"] = $_SERVER['REMOTE_ADDR'];
-				$criteria->params[":voterUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
-			}
-			$vote = AVote::model()->ownedBy($this->owner)->find($criteria);
-			if (is_object($vote)) {
-				$object->_userHasVoted = true;
-				if ($object->_userVoteScore === null) {
-					$object->_userVoteScore = $vote->score;
-				}
-			}
-			else {
-				$object->_userHasVoted = false;
-			}
-			
-		}
-		return $object->_userHasVoted;
-	}
-	/**
-	 * Sets whether the user have voted or not.
-	 * This is mainly used internally, it does not modify anything permanently.
-	 * @param boolean $value Whether the user has voted or not
-	 */
-	public function setUserHasVoted($value) {
-		if (property_exists($this->owner,"_userHasVoted")) {
-			$object =& $this->owner;
-		}
-		else {
-			$object =& $this;
-		}
-		$object->_userHasVoted = (bool) $value;
-	}
-	
-	/**
-	 * Get the score given by the user for this item if they have voted.
-	 * If they have not voted, returns false
-	 * @return mixed integer if the user has voted, otherwise false.
-	 */
-	public function getUserVoteScore() {
-		if (Yii::app()->getModule('voting')->requiresLogin && Yii::app()->user->isGuest) {
-			return false;
-		}
-		if (property_exists($this->owner,"_userHasVoted")) {
-			$object =& $this->owner;
-		}
-		else {
-			$object =& $this;
-		}
-		if ($object->_userVoteScore === null) {
-			$criteria = new CDbCriteria;
-			if (Yii::app()->getModule('voting')->requiresLogin) {
-				$criteria->addCondition("voterId = :voterId");
-				$criteria->params[":voterId"] = Yii::app()->user->id;
-			}
-			else {
-				$criteria->addCondition("voterIP = :voterIP AND voterUserAgent = :voterUserAgent");
-				$criteria->params[":voterIP"] = $_SERVER['REMOTE_ADDR'];
-				$criteria->params[":voterUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
-			}
-			$vote = AVote::model()->ownedBy($this->owner)->find($criteria);
-			if (is_object($vote)) {
-				$object->_userVoteScore = $vote->score;
-				if ($object->_userHasVoted === null) {
-					$object->_userHasVoted = true;
-				}
-			}
-			else {
-				$object->_userVoteScore = false;
-				if ($object->_userHasVoted === null) {
-					$object->_userHasVoted = false;
-				}
-			}
-			
-		}
-		return $object->_userVoteScore;
-	}
-	
-	
-	/**
-	 * Sets the user vote score
-	 * This is mainly used internally, it does not modify anything permanently.
-	 * @param integer $value The score given by the user
-	 */
-	public function setUserVoteScore($value) {
-		if (property_exists($this->owner,"_userHasVoted")) {
-			$object =& $this->owner;
-		}
-		else {
-			$object =& $this;
-		}
-		$object->_userVoteScore = $value;
-	}
-	
-	/**
-	 * Gets the total score for this votable item.
-	 * @return integer The score
-	 */
-	public function getTotalVoteScore() {
-		if (property_exists($this->owner,"_totalVoteScore")) {
-			$object =& $this->owner;
-		}
-		else {
-			$object =& $this;
-		}
-		if ($object->_totalVoteScore === null) {
-			$voteTable = Yii::app()->getModule('voting')->voteTable;
-			$id = $this->owner->tableSchema->primaryKey;
-			$sql = "SELECT COUNT($voteTable.id) AS _totalVotes, IFNULL(SUM($voteTable.score), 0) + 1  as _totalVoteScore FROM $voteTable WHERE $voteTable.ownerModel = :voteOwnerModel AND $voteTable.ownerId = :voteOwnerId";
-			$cmd = Yii::app()->db->createCommand($sql);
-			$cmd->bindValues(array(
-				":voteOwnerModel" => $this->getClassName(),
-				":voteOwnerId" => $this->getId(),
-			));
-			$row = $cmd->queryRow();
-			$object->_totalVoteScore = $row['_totalVoteScore'];
-			$object->_totalVotes = $row['_totalVotes'];
-		}	
-		return $object->_totalVoteScore;	
-	}
-	
-	
-	/**
-	 * Gets the total number of votes for this item
-	 * @return integer The total number of votes for this item
-	 */
-	public function getTotalVotes() {
-		if (property_exists($this->owner,"_totalVoteScore")) {
-			$object =& $this->owner;
-		}
-		else {
-			$object =& $this;
-		}
-		if ($object->_totalVotes === null) {
-			$voteTable = Yii::app()->getModule('voting')->voteTable;
-			$id = $this->owner->tableSchema->primaryKey;
-			$sql = "SELECT COUNT($voteTable.id) AS _totalVotes, IFNULL(SUM($voteTable.score), 0) + 1  as _totalVoteScore FROM $voteTable WHERE $voteTable.ownerModel = :voteOwnerModel AND $voteTable.ownerId = :voteOwnerId";
-			$cmd = Yii::app()->db->createCommand($sql);
-			$cmd->bindValues(array(
-				":voteOwnerModel" => $this->getClassName(),
-				":voteOwnerId" => $this->getId(),
-			));
-			$row = $cmd->queryRow();
-			$object->_totalVoteScore = $row['_totalVoteScore'];
-			$object->_totalVotes = $row['_totalVotes'];
-		}	
-		return $object->_totalVotes;	
-	}
 	
 	/**
 	 * Gets the data provider for this set of votes
@@ -402,5 +191,200 @@ class AVotable extends CActiveRecordBehavior implements IAVotable {
 		$criteria->order = "voteScore ASC";
 		$this->owner->getDbCriteria()->mergeWith($criteria);
 		return $this->owner;
+	}
+	/**
+	 * Gets the configuration for a STAT relation with the total number of votes for this model.
+	 * This should be added to the relations() definition in the owner model.
+	 * <pre>
+	 * "totalVotes" => AVotable::totalVotesRelation(__CLASS__)
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array the relation configuration
+	 */
+	public static function totalVotesRelation($className) {
+		return array(
+				CActiveRecord::STAT,
+				"AVote",
+				"ownerId",
+				"condition" => "ownerModel = :voteOwnerModel",
+				"params" => array(
+					":voteOwnerModel" => $className
+				)
+			);
+	}
+	
+	/**
+	 * Gets the configuration for a STAT relation with the total number of upvotes for this model.
+	 * This should be added to the relations() definition in the owner model.
+	 * <pre>
+	 * "totalUpvotes" => AVotable::totalUpvotesRelation(__CLASS__)
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array the relation configuration
+	 */
+	public static function totalUpvotesRelation($className) {
+		return array(
+				CActiveRecord::STAT,
+				"AVote",
+				"ownerId",
+				"condition" => "ownerModel = :voteOwnerModel AND score = 1",
+				
+				"params" => array(
+					":voteOwnerModel" => $className
+				)
+			);
+	}
+	
+	/**
+	 * Gets the configuration for a STAT relation with the total number of downvotes for this model.
+	 * This should be added to the relations() definition in the owner model.
+	 * <pre>
+	 * "totalDownvotes" => AVotable::totalDownvotesRelation(__CLASS__)
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array the relation configuration
+	 */
+	public static function totalDownvotesRelation($className) {
+		return array(
+				CActiveRecord::STAT,
+				"AVote",
+				"ownerId",
+				"condition" => "ownerModel = :voteOwnerModel AND score = -1",
+				
+				"params" => array(
+					":voteOwnerModel" => $className
+				)
+			);
+	}
+	
+	/**
+	 * Gets the configuration for a STAT relation with the total votes score for this model.
+	 * This should be added to the relations() definition in the owner model.
+	 * <pre>
+	 * "totalVoteScore" => AVotable::totalVoteScoreRelation(__CLASS__)
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array the relation configuration
+	 */
+	public static function totalVoteScoreRelation($className) {
+		return array(
+				CActiveRecord::STAT,
+				"AVote",
+				"ownerId",
+				"select" => "IFNULL(SUM(score), 0)",
+				"condition" => "ownerModel = :voteOwnerModel",
+				"params" => array(
+					":voteOwnerModel" => $className
+				)
+			);
+	}
+	
+	/**
+	 * Gets the configuration for a STAT relation with the  number of votes for this model.
+	 * This should be added to the relations() definition in the owner model.
+	 * <pre>
+	 * "userHasVoted" => AVotable::totalVotesRelation(__CLASS__)
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array the relation configuration
+	 */
+	public static function userHasVotedRelation($className) {
+		$relation =  array(
+				CActiveRecord::STAT,
+				"AVote",
+				"ownerId",
+				"condition" => "ownerModel = :voteOwnerModel",
+				"params" => array(
+					":voteOwnerModel" => $className
+				)
+			);
+		if (Yii::app()->getModule('voting')->requiresLogin) {
+			$relation['condition'] .= " AND voterId = :voterId";
+			$relation['params'][":voterId"] = Yii::app()->user->id;
+		}
+		else {
+			$relation['condition'] .= " AND voterIP = :voterIP AND voterUserAgent = :voterUserAgent";
+			$relation['params'][":voterIP"] = $_SERVER['REMOTE_ADDR'];
+			$relation['params'][":voterUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
+		}
+		return $relation;
+	}
+	
+	/**
+	 * Gets the configuration for a HAS_ONE relation which returns the vote for this item by the current user
+	 * This should be added to the relations() definition in the owner model.
+	 * <pre>
+	 * "userVote" => AVotable::userVoteRelation(__CLASS__)
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array the relation configuration
+	 */
+	public static function userVoteRelation($className) {
+		$relation =  array(
+				CActiveRecord::HAS_ONE,
+				"AVote",
+				"ownerId",
+				"condition" => "userVote.ownerModel = :voteOwnerModel",
+				"params" => array(
+					":voteOwnerModel" => $className
+				)
+			);
+		if (Yii::app()->getModule('voting')->requiresLogin) {
+			$relation['condition'] .= " AND voterId = :voterId";
+			$relation['params'][":voterId"] = Yii::app()->user->id;
+		}
+		else {
+			$relation['condition'] .= " AND voterIP = :voterIP AND voterUserAgent = :voterUserAgent";
+			$relation['params'][":voterIP"] = $_SERVER['REMOTE_ADDR'];
+			$relation['params'][":voterUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
+		}
+		return $relation;
+	}
+	
+	/**
+	 * Gets the configuration for a HAS_MANY relation which returns the votes for this item
+	 * This should be added to the relations() definition in the owner model.
+	 * <pre>
+	 * "reviews" => AVotable::votesRelation(__CLASS__)
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array the relation configuration
+	 */
+	public static function votesRelation($className) {
+		$relation =  array(
+				CActiveRecord::HAS_MANY,
+				"AVote",
+				"ownerId",
+				"condition" => "votes.ownerModel = :voteOwnerModel",
+				"params" => array(
+					":voteOwnerModel" => $className
+				)
+			);
+		return $relation;
+	}
+	
+	/**
+	 * Provides easy drop in relations for votable models.
+	 * Usage:
+	 * <pre>
+	 * public function relations() {
+	 * 	return CMap::mergeArray(AVotable::relations(__CLASS__),array(
+	 * 		"someRelation" => array(self::HAS_MANY,"blah","something")
+	 * 	));
+	 * }
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array The relations provided by this behavior
+	 */
+	public static function relations($className) {
+		return array(
+			"totalVotes" => self::totalVotesRelation($className),
+			"totalUpvotes" => self::totalUpvotesRelation($className),
+			"totalDownvotes" => self::totalDownvotesRelation($className),
+			"totalVoteScore" => self::totalVoteScoreRelation($className),
+			"userHasVoted" => self::userHasVotedRelation($className),
+			"userVote" => self::userVoteRelation($className),
+			"votes" => self::votesRelation($className),
+		);
 	}
 }

@@ -11,7 +11,7 @@
  * @property string $timeAdded the time the rating was added
  * 
  * @author Charles Pick
- * @package blocks.ratings.models
+ * @package packages.ratings.models
  */
 class ARating extends CActiveRecord implements IARating {
 	/**

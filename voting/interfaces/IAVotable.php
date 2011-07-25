@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Charles Pick
- * @package blocks.moderator.interfaces 
+ * @package packages.moderator.interfaces 
  */
 interface IAVotable {
 

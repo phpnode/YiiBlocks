@@ -2,7 +2,7 @@
 /**
  * Deals with voting for models
  * @author Charles Pick
- * @package blocks.voting.controllers
+ * @package packages.voting.controllers
  */
 class VoteController extends CController {
 	
@@ -19,12 +19,15 @@ class VoteController extends CController {
 		if (!is_object($owner)) {
 			throw new CHttpException(404,Yii::t("blocks","No such page"));
 		}
-		$result = ($owner->upVote() ? $owner->getTotalVoteScore() : "ERROR");
+		$result = ($owner->upVote() ? "upvoted" : ($owner->resetVote() ? "notvoted" : "ERROR"));
 		if (Yii::app()->request->isAjaxRequest) {
-			header("Content-type: application/json");
-			echo json_encode(array(
-					"result" => $result
-				));
+			$response = new AJSONResponse();
+			$response->score = $owner->totalVoteScore + 1;
+			$response->totalUpvotes = $owner->totalUpvotes;
+			$response->totalDownvotes = $owner->totalDownvotes; 
+			$response->status = $result;
+			$response->render();
+			return;
 		}
 		else {
 			if ($result === "ERROR") {
@@ -50,12 +53,15 @@ class VoteController extends CController {
 		if (!is_object($owner)) {
 			throw new CHttpException(404,Yii::t("blocks","No such page"));
 		}
-		$result = ($owner->downVote() ? $owner->getTotalVoteScore() : "ERROR");
+		$result = ($owner->downVote() ? "downvoted" : ($owner->resetVote() ? "notvoted" : "ERROR"));
 		if (Yii::app()->request->isAjaxRequest) {
-			header("Content-type: application/json");
-			echo json_encode(array(
-					"result" => $result
-				));
+			$response = new AJSONResponse();
+			$response->score = $owner->totalVoteScore + 1;
+			$response->totalUpvotes = $owner->totalUpvotes;
+			$response->totalDownvotes = $owner->totalDownvotes; 
+			$response->status = $result;
+			$response->render();
+			return;
 		}
 		else {
 			if ($result === "ERROR") {
@@ -81,12 +87,15 @@ class VoteController extends CController {
 		if (!is_object($owner)) {
 			throw new CHttpException(404,Yii::t("blocks","No such page"));
 		}
-		$result = ($owner->resetVote() ? $owner->getTotalVoteScore() : "ERROR");
+		$result = ($owner->resetVote() ? "notvoted" : ($owner->resetVote() ? "notvoted" : "ERROR"));
 		if (Yii::app()->request->isAjaxRequest) {
-			header("Content-type: application/json");
-			echo json_encode(array(
-					"result" => $result
-				));
+			$response = new AJSONResponse();
+			$response->score = $owner->totalVoteScore + 1;
+			$response->totalUpvotes = $owner->totalUpvotes;
+			$response->totalDownvotes = $owner->totalDownvotes; 
+			$response->status = $result;
+			$response->render();
+			return;
 		}
 		else {
 			if ($result === "ERROR") {

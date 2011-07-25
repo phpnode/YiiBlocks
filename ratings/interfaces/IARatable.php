@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Charles Pick
- * @package blocks.reviews.interfaces 
+ * @package packages.reviews.interfaces 
  */
 interface IARatable {
 	/**

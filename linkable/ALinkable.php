@@ -14,7 +14,7 @@
  * echo $user->createLink("Link Text",array("someParam" => "someValue"),array("class" => "blah")); // outputs <a href='/user/update/123.html?someParam=someValue' class='blah'>Link Text</a> or similar depending on the url rules. 
  * </pre>
  * @author Charles Pick
- * @package blocks.linkable
+ * @package packages.linkable
  */
 class ALinkable extends CActiveRecordBehavior implements IALinkable {
 	/**

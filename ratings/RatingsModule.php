@@ -1,11 +1,11 @@
 <?php
-Yii::import("blocks.ratings.models.*");
-Yii::import("blocks.ratings.interfaces.*");
-Yii::import("blocks.ratings.components.*");
+Yii::import("packages.ratings.models.*");
+Yii::import("packages.ratings.interfaces.*");
+Yii::import("packages.ratings.components.*");
 /**
  * Holds functionality relating to user supplied ratings.
  * Ratings can be attached to other models and are managed via the rating controller.
- * @package blocks.ratings
+ * @package packages.ratings
  * @author Charles Pick
  */
 class RatingsModule extends CWebModule {

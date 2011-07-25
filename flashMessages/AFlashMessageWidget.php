@@ -2,7 +2,7 @@
 /**
  * A simple widget for displaying flash messages
  * @author Charles Pick
- * @package blocks.flashMessages
+ * @package packages.flashMessages
  */
 class AFlashMessageWidget extends CWidget {
 	/**

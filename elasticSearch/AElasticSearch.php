@@ -2,7 +2,7 @@
 /**
  * A simple wrapper for ElasticSearch
  * @author Charles Pick
- * @package blocks.elasticSearch
+ * @package packages.elasticSearch
  */
 class AElasticSearch extends CApplicationComponent {
 	/**

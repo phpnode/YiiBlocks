@@ -1,7 +1,7 @@
 <?php
 /**
  * Allows easy indexing and searching for Active Records 
- * @package blocks.elasticSearch
+ * @package packages.elasticSearch
  * @author Charles Pick
  */
 class AElasticSearchable extends CActiveRecordBehavior {

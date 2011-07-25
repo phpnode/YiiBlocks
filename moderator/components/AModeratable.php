@@ -3,7 +3,7 @@
  * Allows easy moderation of user submitted content.
  * This behavior can be attached to any active record.
  * @author Charles Pick
- * @package blocks.moderator.components
+ * @package packages.moderator.components
  */
 class AModeratable extends CActiveRecordBehavior implements IAModeratable {
 	/**
@@ -129,12 +129,15 @@ class AModeratable extends CActiveRecordBehavior implements IAModeratable {
 	 * @return AModerationItem the moderation item for this model, or false if none exists
 	 */
 	public function getModerationItem() {
-		if ($this->_moderationItem === null) {
-		
+		$relations = $this->owner->relations();
+		if (isset($relations['moderationItem'])) {
+			$this->_moderationItem = $this->owner->moderationItem;
+		}
+		else if ($this->_moderationItem === null) {
 			$this->_moderationItem = AModerationItem::model()->ownedBy($this->owner)->find();
-			if (!is_object($this->_moderationItem)) {
-				$this->_moderationItem = false;
-			}
+		}
+		if (!is_object($this->_moderationItem)) {
+			$this->_moderationItem = false;
 		}
 		return $this->_moderationItem;
 	}
@@ -148,6 +151,92 @@ class AModeratable extends CActiveRecordBehavior implements IAModeratable {
 	}
 	
 	/**
+	 * Gets the configuration for a HAS_MANY relation which returns the moderation item for this item
+	 * This should be added to the relations() definition in the owner model.
+	 * <pre>
+	 * "moderationItem" => AModeratable::moderationItemRelation(__CLASS__)
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array the relation configuration
+	 */
+	public static function moderationItemRelation($className) {
+		$relation =  array(
+				CActiveRecord::HAS_ONE,
+				"AModerationItem",
+				"ownerId",
+				"condition" => "moderationItem.ownerModel = :moderationOwnerId",
+				"params" => array(
+					":moderationOwnerId" => $className
+				)
+			);
+		return $relation;
+	}
+	
+	
+	/**
+	 * Provides easy drop in relations for moderatable models.
+	 * Usage:
+	 * <pre>
+	 * public function relations() {
+	 * 	return CMap::mergeArray(AModeratable::relations(__CLASS__),array(
+	 * 		"someRelation" => array(self::HAS_MANY,"blah","something")
+	 * 	));
+	 * }
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array The relations provided by this behavior
+	 */
+	public static function relations($className) {
+		return array(
+			"moderationItem" => self::moderationItemRelation($className),
+		);
+	}
+	/**
+	 * Gets a list of named scopes that can be applied to the owner model
+	 * Usage:
+	 * <pre>
+	 * public function scopes() {
+	 * 	return CMap::mergeArray($this->asa("AModeratable")->scopes(),array(
+	 * 		"anotherScope" => array(...)
+	 * 	));
+	 * }
+	 * </pre>
+	 * @param string $className the name of the class
+	 * @return array The scopes provided by this behavior
+	 */
+	public static function scopes($className) {
+		
+		$tableName = AModerationItem::model()->tableName();
+		$alias = "moderationStatus";
+		return array(
+			"pending" => array(
+					"join" => "INNER JOIN $tableName AS $alias ON $alias.ownerModel = :moderationOwnerModel AND $alias.ownerId = t.id",
+					"condition" => "$alias.status = :moderationStatus",
+					"params" => array(
+							":moderationOwnerModel" => $className,
+							":moderationStatus" => IAModeratable::PENDING
+						),
+				),
+			"approved" => array(
+					"join" => "INNER JOIN $tableName AS $alias ON $alias.ownerModel = :moderationOwnerModel AND $alias.ownerId = t.id",
+					"condition" => "$alias.status = :moderationStatus",
+					"params" => array(
+							":moderationOwnerModel" => $className,
+							":moderationStatus" => IAModeratable::APPROVED
+						),
+				),
+			"denied" => array(
+					"join" => "INNER JOIN $tableName AS $alias ON $alias.ownerModel = :moderationOwnerModel AND $alias.ownerId = t.id",
+					"condition" => "$alias.status = :moderationStatus",
+					"params" => array(
+							":moderationOwnerModel" => $className,
+							":moderationStatus" => IAModeratable::DENIED
+						),
+				),
+			);
+	}
+	
+	/**
 	 * Named Scope: Find models by their moderation status.
 	 * @param string $status The moderation status, either IAModeratable::PENDING, IAModeratable::APPROVED or IAModeratable::DENIED
 	 * @param string $operator The operator to use when adding the condition, defaults to "AND"
@@ -156,10 +245,10 @@ class AModeratable extends CActiveRecordBehavior implements IAModeratable {
 	public function moderated($status = self::APPROVED, $operator = "AND") {
 		$criteria = new CDbCriteria;
 		$tableName = AModerationItem::model()->tableName();
-		$criteria->join = "INNER JOIN $tableName ON $tableName.ownerModel = :ownerModel AND $tableName.ownerId = t.id";
+		$criteria->join = "INNER JOIN $tableName ON $tableName.ownerModel = :moderationOwnerModel AND $tableName.ownerId = t.id";
 		$criteria->addCondition("$tableName.status = :moderationStatus",$operator);
 		$criteria->params = array(
-				":ownerModel" => $this->getClassName(),
+				":moderationOwnerModel" => $this->getClassName(),
 				":moderationStatus" => $status
 			);
 		$this->owner->getDbCriteria()->mergeWith($criteria);

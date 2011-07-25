@@ -11,7 +11,7 @@
  * @property integer $score The rating score, usually 0 to 10
  * 
  * @author Charles Pick
- * @package blocks.voting.interfaces
+ * @package packages.voting.interfaces
  */
 interface IARating {
 }

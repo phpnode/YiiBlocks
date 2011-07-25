@@ -11,7 +11,7 @@
  * @property integer $score The vote score either -1 or 1
  * 
  * @author Charles Pick
- * @package blocks.voting.interfaces
+ * @package packages.voting.interfaces
  */
 interface IAVote {
 }

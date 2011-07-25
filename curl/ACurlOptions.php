@@ -14,7 +14,7 @@
  * The options are then applied to the ACurl object's curl handler by calling
  * the {@link applyTo()} method. 
  * @author Charles Pick
- * @package blocks.curl
+ * @package packages.curl
  */
 class ACurlOptions extends CAttributeCollection {
 	/**

@@ -12,7 +12,7 @@
  * 
  * 
  * @author Charles Pick
- * @package blocks.moderation
+ * @package packages.moderation
  */
 class AModerationItem extends CActiveRecord {
 	/**
@@ -45,7 +45,7 @@ class AModerationItem extends CActiveRecord {
 		return array(
 				
 				"linkable" => array(
-					"class" => "blocks.linkable.ALinkable",
+					"class" => "packages.linkable.ALinkable",
 					"controllerRoute" => "/moderator/moderation"
 				),
 		);

@@ -1,7 +1,7 @@
 <?php
 /**
  * Administration functions for the voting module.
- * @package blocks.voting.controllers
+ * @package packages.voting.controllers
  * @author Charles Pick
  */
 class VoteAdminController extends CController {

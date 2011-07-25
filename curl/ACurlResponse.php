@@ -2,7 +2,7 @@
 /**
  * Holds a curl response.
  * @author Charles Pick
- * @package blocks.curl
+ * @package packages.curl
  */
 class ACurlResponse extends CComponent {
 	/**

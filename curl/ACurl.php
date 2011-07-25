@@ -2,7 +2,7 @@
 /**
  * A wrapper that provides easy access to curl functions.
  * @author Charles Pick
- * @package blocks.curl
+ * @package packages.curl
  */
 class ACurl extends CComponent {
 	/**

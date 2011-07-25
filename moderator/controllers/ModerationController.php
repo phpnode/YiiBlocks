@@ -2,7 +2,7 @@
 /**
  * Provides an interface for moderators to moderate items.
  * @author Charles Pick
- * @package blocks.moderator
+ * @package packages.moderator
  */
 class ModerationController extends Controller {
 	/**
@@ -70,7 +70,7 @@ class ModerationController extends Controller {
 	 * @param string $ownerModel The name of the moderated item class
 	 * @param integer $ownerId The id of the moderated item
 	 * @return AModerationItem the loaded model
-	 * @throws CHttpException if the model doesn't exist
+	 * @throws CHttpException if the owner model doesn't exist
 	 */
 	protected function loadModel($ownerModel, $ownerId) {
 		$model = AModerationItem::model()->findByAttributes(array(
@@ -78,7 +78,13 @@ class ModerationController extends Controller {
 					"ownerId" => $ownerId
 				));
 		if (!is_object($model)) {
-			throw new CHttpException(404,Yii::t("blocks", "No such item"));
+			$owner = $ownerModel::model()->findByPk($ownerId);
+			if (!is_object($owner)) {
+				throw new CHttpException(404,Yii::t("blocks", "No such item"));
+			}
+			$model = new AModerationItem();
+			$model->ownerModel = $ownerModel;
+			$model->ownerId = $ownerId;
 		}
 		return $model;
 	}

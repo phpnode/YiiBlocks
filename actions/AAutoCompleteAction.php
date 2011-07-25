@@ -2,7 +2,7 @@
 /**
  * Provides drop in auto complete functionality for models.
  * @author Charles Pick
- * @package blocks.actions
+ * @package packages.actions
  */
 class AAutoCompleteAction extends CAction {
 		

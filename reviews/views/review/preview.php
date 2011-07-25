@@ -27,9 +27,24 @@
 		echo "<span class='reviewer'>Anonymous</span>";
 	}
 	echo " at ".Yii::app()->format->formatDateTime($model->timeAdded);
-	$this->widget("blocks.moderator.widgets.AModerationButtons",array(
+	// display the moderation buttons
+	$this->widget("packages.moderator.widgets.AModerationButtons",array(
 		"model" => $model,
 		"htmlOptions" => array("class" => "right")
 	));
+	// display the customised voting buttons
+	$this->widget("packages.voting.widgets.AVoteButtons",array(
+		"model" => $model,
+		"upvoteClass" => "upvote",
+		"downvoteClass" => "downvote",
+		"template" => "Did you find this review helpful? {upvote} / {downvote}<br />{summary}",
+		"summaryTemplate" => "<span class='score'>{score}  point(s)</span>",
+		"upvoteLabel" => "Yes",
+		"downvoteLabel" => "No",
+		"upvotedLabel" => "<strong>Yes</strong>",
+		"downvotedLabel" => "<strong>No</strong>",
+		
+	));
+	
 	?>
 </article>

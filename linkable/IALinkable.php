@@ -3,7 +3,7 @@
  * An interface for objects that can be linked to. Objects that implement this
  * interface determine how they should be linked to.
  * @author Charles Pick
- * @package blocks.linkable
+ * @package packages.linkable
  */
 interface IALinkable {
 	/**

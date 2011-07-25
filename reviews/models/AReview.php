@@ -1,7 +1,7 @@
 <?php
 
-Yii::import("blocks.voting.interfaces.IAVote");
-
+Yii::import("packages.voting.interfaces.IAVote");
+Yii::import("packages.voting.components.AVotable");
 /**
  * A base model for user provided reviews.
  * Reviews can be attached to other models using the AReviewable behavior.
@@ -18,7 +18,7 @@ Yii::import("blocks.voting.interfaces.IAVote");
  * 
  * 
  * @author Charles Pick
- * @package blocks.reviews
+ * @package packages.reviews
  */
 class AReview extends CActiveRecord implements IARating, IAModeratable {
 	
@@ -33,26 +33,26 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 		$behaviors = array(
 			
 			"decorator" => array(
-					"class" => "blocks.decorating.AModelDecorator",
-					"decoratorPath" => "blocks.reviews.views.review",
+					"class" => "packages.decorating.AModelDecorator",
+					"decoratorPath" => "packages.reviews.views.review",
 				),
 			"votable" => array(
-					"class" => "blocks.voting.components.AVotable",
+					"class" => "packages.voting.components.AVotable",
 				),
 			"ownable" => array(
-					"class" => "blocks.ownable.AOwnable",
+					"class" => "packages.ownable.AOwnable",
 					"attribute" => "reviewer",
 					"keyAttribute" => "reviewerId",
 					"ownerClassName" => "User"
 				),
 			"linkable" => array(
-					"class" => "blocks.linkable.ALinkable"
+					"class" => "packages.linkable.ALinkable"
 				),
 			
 		);
 		if (Yii::app()->getModule("reviews")->moderateReviews) {
 			$behaviors["moderatable"] = array(
-					"class" => "blocks.moderator.components.AModeratable",
+					"class" => "packages.moderator.components.AModeratable",
 				);
 		}
 		return $behaviors;
@@ -151,10 +151,21 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 	{
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
-		return array(
+		return CMap::mergeArray(
+				AModeratable::relations(__CLASS__),
+				AVotable::relations(__CLASS__),
+				
+				array()
 		);
+		
 	}
-
+	/**
+	 * Named scopes defined by this model.
+	 * @see CActiveRecord::scopes()
+	 */
+	public function scopes() {
+		return CMap::mergeArray(AModeratable::scopes(__CLASS__),array());
+	}
 	/**
 	 * Returns the attribute labels. Attribute labels are mainly used in error messages of validation.
 	 * @see CModel::attributeLabels()
@@ -205,7 +216,7 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 	 */
 	public function ownedBy(CActiveRecord $owner) {
 		$criteria = new CDbCriteria;
-		$criteria->condition = "ownerModel = :voteOwnerModel AND ownerId = :voteOwnerId";
+		$criteria->condition = "t.ownerModel = :voteOwnerModel AND t.ownerId = :voteOwnerId";
 		$criteria->params[":voteOwnerModel"] = get_class($owner);
 		$criteria->params[":voteOwnerId"] = $owner->primaryKey;
 		

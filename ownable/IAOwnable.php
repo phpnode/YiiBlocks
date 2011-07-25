@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Charles Pick
- * @package blocks.ownable.interfaces 
+ * @package packages.ownable.interfaces 
  */
 interface IAOwnable {
 	/**

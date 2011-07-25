@@ -14,7 +14,7 @@
  * 
  * The decorator can also be used as a widget, e.g.
  * <pre>
- * $this->beginWidget("blocks.decorating.AModelDecorator",array(
+ * $this->beginWidget("packages.decorating.AModelDecorator",array(
  * 	"model" => $model,
  *  "viewName" => "searchResult"
  * ));

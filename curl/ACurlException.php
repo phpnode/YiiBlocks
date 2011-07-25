@@ -2,7 +2,7 @@
 /**
  * Wraps curl errors
  * @author Charles Pick
- * @package blocks.curl
+ * @package packages.curl
  */
 class ACurlException extends CException {
 	/**

@@ -1,10 +1,10 @@
 <?php
-Yii::import("blocks.moderator.interfaces.*");
-Yii::import("blocks.moderator.models.*");
-Yii::import("blocks.moderator.components.*");
+Yii::import("packages.moderator.interfaces.*");
+Yii::import("packages.moderator.models.*");
+Yii::import("packages.moderator.components.*");
 /**
  * Holds functionality relating to moderation of user submitted content
- * @package blocks.moderator
+ * @package packages.moderator
  * @author Charles Pick
  */
 class ModeratorModule extends CWebModule {

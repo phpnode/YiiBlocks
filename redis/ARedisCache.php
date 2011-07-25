@@ -3,7 +3,7 @@
  * Allows the application to use redis as a cache component.
  * Depends on the phpredis php extension.
  * @author Charles Pick
- * @package blocks.redis
+ * @package packages.redis
  */
 class ARedisCache extends CCache {
 
@@ -137,7 +137,7 @@ class ARedisCache extends CCache {
 }
 /**
  * Holds configuration information about a redis server
- * @package blocks.redis
+ * @package packages.redis
  * @author Charles Pick
  */
 class ARedisServerConfiguration extends CConfiguration {

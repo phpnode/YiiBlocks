@@ -12,7 +12,7 @@
  * @property integer $score the vote score, either +1 or -1
  * @property string $timeAdded the time the vote was added
  * @author Charles Pick
- * @package blocks.voting.models
+ * @package packages.voting.models
  */
 class AVote extends CActiveRecord implements IAVote {
 	
