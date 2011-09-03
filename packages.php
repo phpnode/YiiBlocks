@@ -7,6 +7,7 @@ $components = array(
 			"redis",
 			"actions",
 			"decorating",
+			"fileManager",
 			"ownable",
 			"nameable",
 			"linkable",

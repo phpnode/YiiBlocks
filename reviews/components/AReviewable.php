@@ -58,8 +58,12 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 				AReview::model()->
 					ownedBy($this->owner)->
 					with(array(
-						"moderationItem"
-					)));
+						"moderationItem",
+						"totalVoteScore",
+						"totalUpvotes",
+						"totalDownvotes",
+						"userHasVoted",
+					))->together());
 		return $dataProvider;
 	}
 	
@@ -118,88 +122,64 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 	}
 	
 	/**
-	 * Gets the configuration for a STAT relation with the total number of reviews for this model.
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "totalReviews" => AReviewable::totalReviewsRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array the relation configuration
+	 * Attaches the behavior to the model
+	 * @param CComponent $component The model to attach to
 	 */
-	public static function totalReviewsRelation($className) {
-		return array(
+	public function attach($component) {
+		parent::attach($component);
+		$this->owner->metaData->addRelation(
+			"totalReviews",
+			array(
 				CActiveRecord::STAT,
 				"AReview",
 				"ownerId",
 				"condition" => "ownerModel = :reviewOwnerModel",
 				"params" => array(
-					":reviewOwnerModel" => $className
-				)
-			);
-	}
-	
-	/**
-	 * Gets the configuration for a STAT relation with the total review score for this model.
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "totalReviewScore" => AReviewable::totalReviewScoreRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array the relation configuration
-	 */
-	public static function totalReviewScoreRelation($className) {
-		return array(
+					":reviewOwnerModel" => $this->getClassName()
+				),
+				"group" => false,
+			)
+		);
+		
+		$this->owner->metaData->addRelation(
+			"totalReviewScore",
+			array(
 				CActiveRecord::STAT,
 				"AReview",
 				"ownerId",
 				"select" => "IFNULL(SUM(score), 0)",
 				"condition" => "ownerModel = :reviewOwnerModel",
 				"params" => array(
-					":reviewOwnerModel" => $className
-				)
-			);
-	}
-	
-	/**
-	 * Gets the configuration for a STAT relation with the average review score for this model.
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "averageReviewScore" => AReviewable::averageReviewScoreRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array the relation configuration
-	 */
-	public static function averageReviewScoreRelation($className) {
-		return array(
+					":reviewOwnerModel" => $this->getClassName()
+				),
+				"group" => false,
+			)
+		);
+		
+		$this->owner->metaData->addRelation(
+			"averageRating",
+			array(
 				CActiveRecord::STAT,
 				"AReview",
 				"ownerId",
 				"select" => "(IFNULL(SUM(score), 0)) / COUNT(*)",
 				"condition" => "ownerModel = :reviewOwnerModel",
 				"params" => array(
-					":reviewOwnerModel" => $className
-				)
-			);
-	}
-	
-	/**
-	 * Gets the configuration for a STAT relation with whether the current user has reviewed this model
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "userHasReviewed" => AReviewable::userHasReviewedRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array the relation configuration
-	 */
-	public static function userHasReviewedRelation($className) {
+					":reviewOwnerModel" => $this->getClassName()
+				),
+				"group" => false,
+			)
+		);
+		
 		$relation =  array(
 				CActiveRecord::STAT,
 				"AReview",
 				"ownerId",
 				"condition" => "ownerModel = :reviewOwnerModel",
 				"params" => array(
-					":reviewOwnerModel" => $className
-				)
+					":reviewOwnerModel" => $this->getClassName()
+				),
+				"group" => false,
 			);
 		if (Yii::app()->getModule('reviews')->requiresLogin) {
 			$relation['condition'] .= " AND userHasReviewed.reviewerId = :reviewerId";
@@ -210,27 +190,22 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 			$relation['params'][":reviewerIP"] = $_SERVER['REMOTE_ADDR'];
 			$relation['params'][":reviewerUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
 		}
-		return $relation;
-	}
-	
-	/**
-	 * Gets the configuration for a HAS_ONE relation which returns the review for this item by the current user
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "userReview" => AReviewable::userReviewRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array the relation configuration
-	 */
-	public static function userReviewRelation($className) {
+		
+		
+		$this->owner->metaData->addRelation(
+			"userHasReviewed",
+			$relation
+		);
+		
+		
 		$relation =  array(
 				CActiveRecord::HAS_ONE,
 				"AReview",
 				"ownerId",
 				"condition" => "ownerModel = :reviewOwnerModel",
 				"params" => array(
-					":reviewOwnerModel" => $className
-				)
+					":reviewOwnerModel" => $this->getClassName()
+				),
 			);
 		if (Yii::app()->getModule('reviews')->requiresLogin) {
 			$relation['condition'] .= " AND userReview.reviewerId = :reviewerId";
@@ -241,51 +216,25 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 			$relation['params'][":reviewerIP"] = $_SERVER['REMOTE_ADDR'];
 			$relation['params'][":reviewerUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
 		}
-		return $relation;
-	}
-	
-	/**
-	 * Gets the configuration for a HAS_MANY relation which returns the reviews for this item
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "reviews" => AReviewable::reviewsRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array the relation configuration
-	 */
-	public static function reviewsRelation($className) {
-		$relation =  array(
+		$this->owner->metaData->addRelation(
+			"userReview",
+			$relation
+		);
+		
+		$this->owner->metaData->addRelation(
+			"reviews",
+			array(
 				CActiveRecord::HAS_MANY,
 				"AReview",
 				"ownerId",
 				"condition" => "reviews.ownerModel = :reviewOwnerModel",
 				"params" => array(
-					":reviewOwnerModel" => $className
-				)
-			);
-		return $relation;
-	}
-	/**
-	 * Provides easy drop in relations for reviewable models.
-	 * Usage:
-	 * <pre>
-	 * public function relations() {
-	 * 	return CMap::mergeArray(AReviewable::relations(__CLASS__),array(
-	 * 		"someRelation" => array(self::HAS_MANY,"blah","something")
-	 * 	));
-	 * }
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array The relations provided by this behavior
-	 */
-	public static function relations($className) {
-		return array(
-			"totalReviews" => self::totalReviewsRelation($className),
-			"totalReviewScore" => self::totalReviewScoreRelation($className),
-			"averageRating" => self::averageReviewScoreRelation($className),
-			"userHasReviewed" => self::userHasReviewedRelation($className),
-			"userReview" => self::userReviewRelation($className),
-			"reviews" => self::reviewsRelation($className),
+					":reviewOwnerModel" => $this->getClassName()
+				),
+			)
 		);
+		
 	}
+	
+
 }

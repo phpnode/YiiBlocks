@@ -26,12 +26,16 @@ class APackageManager extends CApplicationComponent {
 	public function getPackages() {
 		if ($this->_packages === null) {
 			$this->_packages = new CAttributeCollection();
-			foreach(include(Yii::getPathOfAlias("packages.ypm.data.packages").".php") as $item) {
-				$package = new APackage;
-				foreach($item as $attribute => $value) {
-					$package->{$attribute} = $value;
+			$directories = AFileHelper::findDirectories(Yii::getPathOfAlias("packages"),array(
+				"level" => 0,
+			));
+			foreach($directories as $dir) {
+				if (file_exists($dir."/package.json")) {
+					$package = APackage::load(basename($dir));
+					if (is_object($package)) {
+						$this->_packages->add($package->name,$package);
+					}
 				}
-				$this->_packages->add($package->name,$package);
 			}
 		}
 		return $this->_packages;
@@ -60,11 +64,49 @@ class APackageManager extends CApplicationComponent {
 	 * @return boolean whether the installation succeeded or not
 	 */
 	public function install($packageName) {
-		foreach($this->getRepositories() as $repo) {
-			if (isset($repo->packages[$packageName])) {
-				return $repo->packages[$packageName]->install();
+		
+		$package = $this->find($packageName);
+		if ($package === false) {
+			return false;
+		}
+		else {
+			return $package->install();
+		}
+	}
+	/**
+	 * Finds a package based on the given name.
+	 * @param string $packageName the name of the package to find
+	 * @return mixed Either an instance of APackage
+	 */
+	public function find($packageName) {
+		if (strstr($packageName,"/")) {
+			$repoName = explode("/",$packageName);
+			$packageName = array_pop($repoName);
+			$repoName = array_shift($repoName);
+			if (!isset($this->repositories->{$repoName})) {
+				return false;
+			}
+			$repository = $this->repositories->{$repoName};
+			
+			if (!isset($repository->packages->{$packageName})) {
+				return false;
+			}
+			return $repository->packages->{$packageName};
+		}
+		else {
+			if (!isset($this->packages->{$packageName})) {
+				// this isn't an installed package so we need to find it
+				foreach($this->repositories as $repository) {
+					if (isset($repository->packages->{$packageName})) {
+						return $repository->packages->{$packageName};
+					}
+				}
+				return false;
+			}
+			else {
+				return $packageManager->packages->{$packageName};
 			}
 		}
-		return false;
+		
 	}
 }

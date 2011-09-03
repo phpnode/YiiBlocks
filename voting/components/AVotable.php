@@ -23,6 +23,23 @@ class AVotable extends CActiveRecordBehavior implements IAVotable {
 	 * @var AVote
 	 */
 	protected $_userVote;
+	
+	/**
+	 * Attaches the behavior to the model
+	 * @param CComponent $component The model to attach to
+	 */
+	public function attach($component) {
+		parent::attach($component);
+		
+		$this->owner->metaData->addRelation("totalVotes",$this->totalVotesRelation());
+		$this->owner->metaData->addRelation("totalUpvotes",$this->totalUpvotesRelation());
+		$this->owner->metaData->addRelation("totalDownvotes",$this->totalDownvotesRelation());
+		$this->owner->metaData->addRelation("totalVoteScore",$this->totalVoteScoreRelation());
+		$this->owner->metaData->addRelation("userHasVoted",$this->userHasVotedRelation());
+		$this->owner->metaData->addRelation("userVote",$this->userVoteRelation());
+		$this->owner->metaData->addRelation("votes",$this->votesRelation());
+	}
+	
 	/**
 	 * Gets the id of the object being moderated.
 	 * @return integer the id of the object being moderated.
@@ -194,35 +211,26 @@ class AVotable extends CActiveRecordBehavior implements IAVotable {
 	}
 	/**
 	 * Gets the configuration for a STAT relation with the total number of votes for this model.
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "totalVotes" => AVotable::totalVotesRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
 	 * @return array the relation configuration
 	 */
-	public static function totalVotesRelation($className) {
+	public function totalVotesRelation() {
 		return array(
 				CActiveRecord::STAT,
 				"AVote",
 				"ownerId",
 				"condition" => "ownerModel = :voteOwnerModel",
 				"params" => array(
-					":voteOwnerModel" => $className
-				)
+					":voteOwnerModel" => $this->getClassName()
+				),
+				"group" => false,
 			);
 	}
 	
 	/**
 	 * Gets the configuration for a STAT relation with the total number of upvotes for this model.
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "totalUpvotes" => AVotable::totalUpvotesRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
 	 * @return array the relation configuration
 	 */
-	public static function totalUpvotesRelation($className) {
+	public function totalUpvotesRelation() {
 		return array(
 				CActiveRecord::STAT,
 				"AVote",
@@ -230,21 +238,17 @@ class AVotable extends CActiveRecordBehavior implements IAVotable {
 				"condition" => "ownerModel = :voteOwnerModel AND score = 1",
 				
 				"params" => array(
-					":voteOwnerModel" => $className
-				)
+					":voteOwnerModel" => $this->getClassName()
+				),
+				"group" => false,
 			);
 	}
 	
 	/**
 	 * Gets the configuration for a STAT relation with the total number of downvotes for this model.
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "totalDownvotes" => AVotable::totalDownvotesRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
 	 * @return array the relation configuration
 	 */
-	public static function totalDownvotesRelation($className) {
+	public function totalDownvotesRelation() {
 		return array(
 				CActiveRecord::STAT,
 				"AVote",
@@ -252,21 +256,17 @@ class AVotable extends CActiveRecordBehavior implements IAVotable {
 				"condition" => "ownerModel = :voteOwnerModel AND score = -1",
 				
 				"params" => array(
-					":voteOwnerModel" => $className
-				)
+					":voteOwnerModel" => $this->getClassName()
+				),
+				"group" => false,
 			);
 	}
 	
 	/**
 	 * Gets the configuration for a STAT relation with the total votes score for this model.
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "totalVoteScore" => AVotable::totalVoteScoreRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
 	 * @return array the relation configuration
 	 */
-	public static function totalVoteScoreRelation($className) {
+	public function totalVoteScoreRelation() {
 		return array(
 				CActiveRecord::STAT,
 				"AVote",
@@ -274,28 +274,24 @@ class AVotable extends CActiveRecordBehavior implements IAVotable {
 				"select" => "IFNULL(SUM(score), 0)",
 				"condition" => "ownerModel = :voteOwnerModel",
 				"params" => array(
-					":voteOwnerModel" => $className
-				)
+					":voteOwnerModel" => $this->getClassName()
+				),
+				"group" => false,
 			);
 	}
 	
 	/**
 	 * Gets the configuration for a STAT relation with the  number of votes for this model.
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "userHasVoted" => AVotable::totalVotesRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
 	 * @return array the relation configuration
 	 */
-	public static function userHasVotedRelation($className) {
+	public function userHasVotedRelation() {
 		$relation =  array(
 				CActiveRecord::STAT,
 				"AVote",
 				"ownerId",
 				"condition" => "ownerModel = :voteOwnerModel",
 				"params" => array(
-					":voteOwnerModel" => $className
+					":voteOwnerModel" => $this->getClassName()
 				)
 			);
 		if (Yii::app()->getModule('voting')->requiresLogin) {
@@ -312,21 +308,16 @@ class AVotable extends CActiveRecordBehavior implements IAVotable {
 	
 	/**
 	 * Gets the configuration for a HAS_ONE relation which returns the vote for this item by the current user
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "userVote" => AVotable::userVoteRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
 	 * @return array the relation configuration
 	 */
-	public static function userVoteRelation($className) {
+	public function userVoteRelation() {
 		$relation =  array(
 				CActiveRecord::HAS_ONE,
 				"AVote",
 				"ownerId",
 				"condition" => "userVote.ownerModel = :voteOwnerModel",
 				"params" => array(
-					":voteOwnerModel" => $className
+					":voteOwnerModel" => $this->getClassName()
 				)
 			);
 		if (Yii::app()->getModule('voting')->requiresLogin) {
@@ -343,48 +334,20 @@ class AVotable extends CActiveRecordBehavior implements IAVotable {
 	
 	/**
 	 * Gets the configuration for a HAS_MANY relation which returns the votes for this item
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "reviews" => AVotable::votesRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
 	 * @return array the relation configuration
 	 */
-	public static function votesRelation($className) {
+	public function votesRelation() {
 		$relation =  array(
 				CActiveRecord::HAS_MANY,
 				"AVote",
 				"ownerId",
 				"condition" => "votes.ownerModel = :voteOwnerModel",
 				"params" => array(
-					":voteOwnerModel" => $className
+					":voteOwnerModel" => $this->getClassName()
 				)
 			);
 		return $relation;
 	}
 	
-	/**
-	 * Provides easy drop in relations for votable models.
-	 * Usage:
-	 * <pre>
-	 * public function relations() {
-	 * 	return CMap::mergeArray(AVotable::relations(__CLASS__),array(
-	 * 		"someRelation" => array(self::HAS_MANY,"blah","something")
-	 * 	));
-	 * }
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array The relations provided by this behavior
-	 */
-	public static function relations($className) {
-		return array(
-			"totalVotes" => self::totalVotesRelation($className),
-			"totalUpvotes" => self::totalUpvotesRelation($className),
-			"totalDownvotes" => self::totalDownvotesRelation($className),
-			"totalVoteScore" => self::totalVoteScoreRelation($className),
-			"userHasVoted" => self::userHasVotedRelation($className),
-			"userVote" => self::userVoteRelation($className),
-			"votes" => self::votesRelation($className),
-		);
-	}
+	
 }

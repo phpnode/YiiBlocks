@@ -151,21 +151,10 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 	{
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
-		return CMap::mergeArray(
-				AModeratable::relations(__CLASS__),
-				AVotable::relations(__CLASS__),
-				
-				array()
-		);
+		return array();
 		
 	}
-	/**
-	 * Named scopes defined by this model.
-	 * @see CActiveRecord::scopes()
-	 */
-	public function scopes() {
-		return CMap::mergeArray(AModeratable::scopes(__CLASS__),array());
-	}
+
 	/**
 	 * Returns the attribute labels. Attribute labels are mainly used in error messages of validation.
 	 * @see CModel::attributeLabels()

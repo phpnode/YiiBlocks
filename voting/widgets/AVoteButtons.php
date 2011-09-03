@@ -10,31 +10,31 @@ class AVoteButtons extends CWidget {
 	 * @var CActiveRecord
 	 */
  	public $model;
-	
+
 	/**
 	 * The label that should appear on the upvote button
 	 * @var string
 	 */
 	public $upvoteLabel = "Upvote";
-	
+
 	/**
 	 * The label that should appear on the downvote button
 	 * @var string
 	 */
 	public $downvoteLabel = "Downvote";
-	
+
 	/**
 	 * The label that should appear on the upvote button when the use has up voted.
 	 * @var string
 	 */
 	public $upvotedLabel = "Upvoted";
-	
+
 	/**
 	 * The label that should appear on the downvote button when the user has downvoted.
 	 * @var string
 	 */
 	public $downvotedLabel = "Downvoted";
-	
+
 	/**
 	 * The template to use when displaying the vote buttons.
 	 * The following tokens are recognised:
@@ -54,13 +54,13 @@ class AVoteButtons extends CWidget {
 	 * @var string
 	 */
 	public $downvoteClass = "downvote button";
-	
+
 	/**
 	 * The CSS class for the summary span
 	 * @var string
 	 */
 	public $summaryClass = "score";
-	
+
 	/**
 	 * The template for the summary tag.
 	 * The following tokens are recognised:
@@ -75,20 +75,20 @@ class AVoteButtons extends CWidget {
 	 * @var array
 	 */
 	public $htmlOptions = array();
-	
+
 	/**
 	 * The options for the jQuery plugin
 	 * @var array
 	 */
 	public $options = array();
-	
+
 	/**
 	 * The tag name for the container.
 	 * Defaults to "div".
 	 * @var string
 	 */
 	public $tagName = "div";
-	
+
 	/**
 	 * Displays the vote buttons and reviews summary.
 	 */
@@ -130,7 +130,7 @@ class AVoteButtons extends CWidget {
 		}
 		else {
 			$options = CJSON::encode($options);
-		} 
+		}
 		$script = "$('#$id').AVoteButtons($options);";
 		$this->registerScripts();
 		Yii::app()->clientScript->registerScript(__CLASS__."#".$id,$script);
@@ -150,8 +150,8 @@ class AVoteButtons extends CWidget {
 			$htmlOptions['class'] .= " active";
 			$label = $this->upvotedLabel;
 		}
-		return CHtml::link($label, array("/voting/vote/up", "ownerModel" => $this->model->asa("votable")->getClassName(), "ownerId" => $this->model->asa("votable")->getId()),$htmlOptions);
-		
+		return CHtml::link($label, array("/voting/vote/up", "ownerModel" => $this->model->asa("AVotable")->getClassName(), "ownerId" => $this->model->asa("AVotable")->getId()),$htmlOptions);
+
 	}
 
 	/**
@@ -169,7 +169,7 @@ class AVoteButtons extends CWidget {
 			$htmlOptions['class'] .= " active";
 			$label = $this->downvotedLabel;
 		}
-		return CHtml::link($label, array("/voting/vote/down", "ownerModel" => $this->model->asa("votable")->getClassName(), "ownerId" => $this->model->asa("votable")->getId()),$htmlOptions);
+		return CHtml::link($label, array("/voting/vote/down", "ownerModel" => $this->model->asa("AVotable")->getClassName(), "ownerId" => $this->model->asa("AVotable")->getId()),$htmlOptions);
 	}
 	/**
 	 * Gets the review summary for this votable model.
@@ -180,17 +180,17 @@ class AVoteButtons extends CWidget {
 			"{score}" => $this->model->totalVoteScore + 1,
 			"{upvotes}" => $this->model->totalUpvotes,
 			"{downvotes}" => $this->model->totalDownvotes,
-			
+
 		));
-		
+
 	}
-	
+
 	/**
 	 * Registers the required scripts
 	 */
 	public function registerScripts() {
 		$baseUrl = Yii::app()->assetManager->publish(dirname(__FILE__)."/assets/".__CLASS__);
 		Yii::app()->clientScript->registerScriptFile($baseUrl."/AVoteButtons.js");
-		
+
 	}
 }

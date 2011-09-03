@@ -30,7 +30,7 @@ class APackage extends CFormModel {
 	/**
 	 * An array of files that make up this package.
 	 * A full path to the file should be specified, but the file must be located
-	 * under the application basePath, e.g. in /protected
+	 * under the application packages basePath, e.g. in /protected/packages
 	 * <pre>
 	 * array(
 	 * 	"/var/www/testdrive/protected/testpackage/TestModule.php",
@@ -61,13 +61,31 @@ class APackage extends CFormModel {
 	 */
 	public function rules() {
 		return array(
-			array("name, description","required"),
-			array("name", "length", "max" => 50),
-			array("description", "length", "max" => 1000),
-			array('name', 'match', 'pattern'=>'/^([a-z0-9-])+$/'),
+			array("name","required","on" => "create"),
+			array("description","required", "on" => "create,edit"),
+			array("name", "length", "max" => 50, "on" => "create"),
+			array("description", "length", "max" => 1000, "on" => "create,edit"),
+			array('name', 'match', 'pattern'=>'/^([a-z0-9-])+$/', "on" => "create"),
+			array('name','checkUnique','on' => 'create'),
+			array("files", "safe", "on" => "edit"),
 		);
 	}
 	
+	/**
+	 * Checks that the package name is unique
+	 * @return boolean true if the name is unique
+	 */
+	public function checkUnique() {
+		if ($this->hasErrors("name")) {
+			return false;
+		}
+		$package = Yii::app()->packageManager->find($this->name);
+		if ($package === false) {
+			return true;
+		}
+		$this->addError("name",Yii::t("packages.ypm","A package with this name already exists!"));
+		return false;
+	}
 	/**
 	 * Gets an array of attribute labels for this model
 	 * @see CModel::attributeLabels
@@ -178,40 +196,12 @@ class APackage extends CFormModel {
 	public function resolveDependencies() {
 		$packageManager = Yii::app()->packageManager;
 		$packages = array();
-		foreach($this->dependencies as $dependency) {
-			if (strstr($dependency,"/")) {
-				$repoName = explode("/",$dependency);
-				$dependency = array_pop($repoName);
-				$repoName = array_shift($repoName);
-				if (!isset($packageManager->repositories->{$repoName})) {
-					throw new APackageRepositoryException(Yii::t("packages.ypm", "No such package repository: {repoName}", array("{repoName}" => $repoName)));
-				}
-				$repository = $packageManager->repositories->{$repoName};
-				
-				if (!isset($repository->packages->{$dependency})) {
-					throw new APackageRepositoryException(Yii::t("packages.ypm", "The repository: {repoName} does not contain a package called {package}", array("{repoName}" => $repoName, "{package}" => $dependency)));
-				}
-				$packages[] = $repository->packages->{$dependency};
+		foreach($this->dependencies as $packageName) {
+			$package = Yii::app()->packageManager->find($packageName);
+			if ($package === false) {
+				throw new APackageRepositoryException(Yii::t("packages.ypm", "No such package: {name}", array("{name}" => $packageName)));
 			}
-			else {
-				if (!isset($packageManager->packages->{$dependency})) {
-					// this isn't an installed package so we need to find it
-					$matched = false;
-					foreach($packageManager->repositories as $repository) {
-						if (isset($repository->packages->{$dependency})) {
-							$matched = true;
-							$packages[] = $repository->packages->{$dependency};
-							break;
-						}
-					}
-					if (!$matched) {
-						throw new APackageRepositoryException(Yii::t("packages.ypm", "No such package: {dependency}", array("{dependency}" => $dependency)));
-					}
-				}
-				else {
-					$packages[] = $packageManager->packages->{$dependency};
-				}
-			}
+			$packages[] = $package;
 		}
 		return $packages;
 	}
@@ -232,6 +222,23 @@ class APackage extends CFormModel {
 		
 	}
 	/**
+	 * Saves the package JSON to packages/PACKAGENAME/package.json
+	 * @param boolean $runValidation Whether to run validation or not, defaults to true.
+	 * @return boolean Whether save succeeded or not
+	 */
+	public function save($runValidation = true) {
+		if ($runValidation && !$this->validate()) {
+			return false;
+		}
+		$packageDir = Yii::getPathOfAlias("packages")."/".$this->name."/";
+		$packageFile = $packageDir."package.json";
+		if (!file_exists($packageDir)) {
+			mkdir($packageDir);
+		}
+		return file_put_contents($packageFile, $this->toJSON()) ? true : false;
+		
+	}
+	/**
 	 * Adds a message with the given level to the log.
 	 * @param string $level The log level, either "info", "success", "warning" or "error"
 	 * @param string $message The message to log
@@ -240,5 +247,51 @@ class APackage extends CFormModel {
 		#echo "<pre>\n";
 		echo "[$level] - $message\n";
 		#echo "</pre>\n";
+	}
+	/**
+	 * Gets a JSON representation of this package.
+	 * @return string The JSON for this package
+	 */
+	public function toJSON() {
+		$json = array(
+			"name" => $this->name,
+			"description" => $this->description,
+			"dependencies" => $this->dependencies,
+			"files" => $this->files
+		);
+		if (function_exists("json_encode")) {
+			return json_encode($json);
+		}
+		else {
+			return CJSON::encode($json);
+		}
+	}
+	
+	/**
+	 * Loads a package based on the given name.
+	 */
+	public static function load($name) {
+		$packageDir = Yii::getPathOfAlias("packages")."/".$name."/";
+		if (!file_exists($packageDir."package.json")) {
+			return false;
+		}
+		else {
+			$json = file_get_contents($packageDir."package.json");
+			if (function_exists("json_decode")) {
+				$json = json_decode($json);
+			}
+			else {
+				$json = CJSON::decode($json);
+			}
+			
+			if (!$json) {
+				return false;
+			}
+			$package = new APackage("edit");
+			foreach($json as $attribute => $value) {
+				$package->{$attribute} = $value;
+			}
+			return $package;
+		}
 	}
 }

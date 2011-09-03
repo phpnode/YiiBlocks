@@ -2,10 +2,10 @@
 /**
  * AAkismetBehavior provides a wrapper for the Akismet anti blog spam API.
  * To use AAkismetBehavior you must obtain an API key for Akismet, and specify this key
- * in the akismet component configuration ({@link AAkismet->apiKey}).
+ * in the akismet component configuration ({@link AAkismet::apiKey}).
  * 
- * <br />
- * <b>Basic Usage:</b><br />
+ * <b>Basic Usage:</b>
+ * 
  * <pre>
  * // assumes $comment is a model with AAkismetBehavior configured
  * if ($comment->isCommentSpam()) { // sends the data to akismet and waits for a response
@@ -13,18 +13,22 @@
  * }
  * </pre>
  * 
- * <b>Marking an item as spam:</b><br />
+ * <b>Marking an item as spam:</b>
+ * 
  * Sometimes a spammy comment makes it through the filter, so when we mark it as spam
  * we should tell akismet about it too, to help improve the spam filter.
+ * 
  * <pre>
  * // mark comment as spam
  * $comment->isSpam = true;
  * $comment->submitSpam(); // submits the spammy comment to Akismet
  * </pre>
  * 
- * <b>Marking an item as not spam:</b><br />
+ * <b>Marking an item as not spam:</b>
+ * 
  * Sometimes a valid comment can get caught in the filter by mistake, in this case we should mark
  * it as "ham" (i.e. not spam)
+ * 
  * <pre>
  * // mark comment as not spam
  * $comment->isSpam = false;
@@ -152,7 +156,7 @@ class AAkismetBehavior extends CActiveRecordBehavior {
 	 * If no spamField is specified and spam is detected, the save will be halted, otherwise the save will
 	 * continue but the spamFlag will be set to true.
 	 * @param CEvent $event The before save event
-	 * @see CActiveRecordBehavior::beforeSave();
+	 * @see CActiveRecordBehavior::beforeSave()
 	 */
 	public function beforeSave($event) {
 		if ($event->sender->isNewRecord && $this->isCommentSpam()) {

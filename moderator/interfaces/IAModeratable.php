@@ -6,6 +6,7 @@
 interface IAModeratable {
 	const PENDING = 'pending';
 	const APPROVED = 'approved';
+	const EDITED = 'edited';
 	const DENIED = 'denied';
 	/**
 	 * Gets the id of the object being moderated.

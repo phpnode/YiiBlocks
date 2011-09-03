@@ -4,8 +4,8 @@
  * @uses APackage $model The package to create
  */
 ?>
-<article class='width_2'>
+<article class='width_3'>
 	<?php
-	$this->renderPartial("_create".$stage,array("model" => $model));
+	$this->renderPartial("_create",array("model" => $model));
 	?>
 </article>

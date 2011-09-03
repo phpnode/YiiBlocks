@@ -35,6 +35,10 @@ class AFlashMessageWidget extends CWidget {
 		foreach($this->getMessageTypes() as $type => $details) {
 			$message = Yii::app()->user->getFlash($type);
 			if ($message) {
+				if (is_array($message)) {
+					$viewFile = array_shift($message);
+					$message = Yii::app()->controller->renderPartial($viewFile,$message,true);
+				}
 				$timeout = false;
 				if (isset($details['timeout'])) {
 					$timeout = $details['timeout'];

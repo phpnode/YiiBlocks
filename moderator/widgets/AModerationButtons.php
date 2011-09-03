@@ -52,7 +52,7 @@ class AModerationButtons extends CWidget {
 	
 		if ($this->showButtons) {
 			echo CHtml::openTag("div",$htmlOptions);
-			$moderationItem = $this->model->getModerationItem();
+			$moderationItem = $this->model->moderationItem;
 			if ($moderationItem === false) {
 				$moderationItem = new AModerationItem;
 				$moderationItem->ownerModel = $this->model->getClassName();

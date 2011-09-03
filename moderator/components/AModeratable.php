@@ -13,6 +13,27 @@ class AModeratable extends CActiveRecordBehavior implements IAModeratable {
 	 * @var AModerationItem
 	 */
 	protected $_moderationItem;
+	
+	/**
+	 * Attaches the behavior to the model
+	 * @param CComponent $component The model to attach to
+	 */
+	public function attach($component) {
+		parent::attach($component);
+		$this->owner->metaData->addRelation(
+			"moderationItem",
+			array(
+				CActiveRecord::HAS_ONE,
+				"AModerationItem",
+				"ownerId",
+				"condition" => "moderationItem.ownerModel = :moderationOwner",
+				"params" => array(
+					":moderationOwner" => $this->getClassName(),
+				)
+			)
+		);
+
+	}
 	/**
 	 * Gets the id of the object being moderated.
 	 * @return integer the id of the object being moderated.
@@ -151,89 +172,60 @@ class AModeratable extends CActiveRecordBehavior implements IAModeratable {
 	}
 	
 	/**
-	 * Gets the configuration for a HAS_MANY relation which returns the moderation item for this item
-	 * This should be added to the relations() definition in the owner model.
-	 * <pre>
-	 * "moderationItem" => AModeratable::moderationItemRelation(__CLASS__)
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array the relation configuration
+	 * Named Scope: Get a list of models that are pending moderation
+	 * @return CActiveRecord the owner model, with scope applied
 	 */
-	public static function moderationItemRelation($className) {
-		$relation =  array(
-				CActiveRecord::HAS_ONE,
-				"AModerationItem",
-				"ownerId",
-				"condition" => "moderationItem.ownerModel = :moderationOwnerId",
-				"params" => array(
-					":moderationOwnerId" => $className
-				)
-			);
-		return $relation;
-	}
-	
-	
-	/**
-	 * Provides easy drop in relations for moderatable models.
-	 * Usage:
-	 * <pre>
-	 * public function relations() {
-	 * 	return CMap::mergeArray(AModeratable::relations(__CLASS__),array(
-	 * 		"someRelation" => array(self::HAS_MANY,"blah","something")
-	 * 	));
-	 * }
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array The relations provided by this behavior
-	 */
-	public static function relations($className) {
-		return array(
-			"moderationItem" => self::moderationItemRelation($className),
-		);
-	}
-	/**
-	 * Gets a list of named scopes that can be applied to the owner model
-	 * Usage:
-	 * <pre>
-	 * public function scopes() {
-	 * 	return CMap::mergeArray($this->asa("AModeratable")->scopes(),array(
-	 * 		"anotherScope" => array(...)
-	 * 	));
-	 * }
-	 * </pre>
-	 * @param string $className the name of the class
-	 * @return array The scopes provided by this behavior
-	 */
-	public static function scopes($className) {
-		
+	public function pending() {
 		$tableName = AModerationItem::model()->tableName();
-		$alias = "moderationStatus";
-		return array(
-			"pending" => array(
-					"join" => "INNER JOIN $tableName AS $alias ON $alias.ownerModel = :moderationOwnerModel AND $alias.ownerId = t.id",
-					"condition" => "$alias.status = :moderationStatus",
-					"params" => array(
-							":moderationOwnerModel" => $className,
-							":moderationStatus" => IAModeratable::PENDING
-						),
-				),
-			"approved" => array(
-					"join" => "INNER JOIN $tableName AS $alias ON $alias.ownerModel = :moderationOwnerModel AND $alias.ownerId = t.id",
-					"condition" => "$alias.status = :moderationStatus",
-					"params" => array(
-							":moderationOwnerModel" => $className,
-							":moderationStatus" => IAModeratable::APPROVED
-						),
-				),
-			"denied" => array(
-					"join" => "INNER JOIN $tableName AS $alias ON $alias.ownerModel = :moderationOwnerModel AND $alias.ownerId = t.id",
-					"condition" => "$alias.status = :moderationStatus",
-					"params" => array(
-							":moderationOwnerModel" => $className,
-							":moderationStatus" => IAModeratable::DENIED
-						),
-				),
-			);
+		$alias = $this->getClassName()."_moderationStatus";
+		$criteria = new CDbCriteria(array(
+			"params" => array(
+				":moderationOwnerModel" => $this->getClassName(),
+				":moderationStatus" => IAModeratable::PENDING
+			),
+		));
+		$criteria->join = "INNER JOIN $tableName AS $alias ON $alias.ownerModel = :moderationOwnerModel AND $alias.ownerId = t.id AND $alias.status = :moderationStatus";
+
+		$this->owner->getDbCriteria()->mergeWith($criteria);
+		return $this->owner;
+	}
+
+	/**
+	 * Named Scope: Get a list of models that have passed moderation
+	 * @return CActiveRecord the owner model, with scope applied
+	 */
+	public function approved() {
+		$tableName = AModerationItem::model()->tableName();
+		$alias = $this->getClassName()."_moderationStatus";
+		$criteria = new CDbCriteria(array(
+			"params" => array(
+				":moderationOwnerModel" => $this->getClassName(),
+				":moderationStatus" => IAModeratable::APPROVED
+			),
+		));
+		$criteria->join = "INNER JOIN $tableName AS $alias ON $alias.ownerModel = :moderationOwnerModel AND $alias.ownerId = t.id AND $alias.status = :moderationStatus";
+
+		$this->owner->getDbCriteria()->mergeWith($criteria);
+		return $this->owner;
+	}
+    
+ 	/**
+	 * Named Scope: Get a list of models that have been denied by a moderator
+	 * @return CActiveRecord the owner model, with scope applied
+	 */
+	public function denied() {
+		$tableName = AModerationItem::model()->tableName();
+		$alias = $this->getClassName()."_moderationStatus";
+		$criteria = new CDbCriteria(array(
+			"params" => array(
+				":moderationOwnerModel" => $this->getClassName(),
+				":moderationStatus" => IAModeratable::DENIED
+			),
+		));
+		$criteria->join = "INNER JOIN $tableName AS $alias ON $alias.ownerModel = :moderationOwnerModel AND $alias.ownerId = t.id AND $alias.status = :moderationStatus";
+
+		$this->owner->getDbCriteria()->mergeWith($criteria);
+		return $this->owner;
 	}
 	
 	/**

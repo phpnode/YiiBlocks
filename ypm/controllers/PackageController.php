@@ -5,31 +5,57 @@
  * @package packages.ypm.controllers
  */
 class PackageController extends Controller {
-	
+	/**
+	 * Declares class based actions
+	 * @return array The class based actions to use for this controller
+	 */
+	public function actions() {
+		return array(
+			"browseFiles" => array(
+				"class" => "packages.fileManager.actions.ABrowseDirectoryAction",
+				"basePath" => array(
+						Yii::getPathOfAlias("application"),
+						Yii::getPathOfAlias("webroot"),
+					)
+			)
+		);
+	}
 	/**
 	 * Creates a new package
 	 */
 	public function actionCreate() {
-		if (isset($_POST['stage'])) {
-			$stage = (int) $_POST['stage'];
+		
+		$model = new APackage("create");
+		$this->performAjaxValidation($model);
+		if (isset($_POST['APackage'])) {
+			$model->attributes = $_POST['APackage'];
+			if ($model->save()) {
+				Yii::app()->user->setFlash("success",Yii::t("packages.ypm","<h2>Package Created</h2><p>Your new package was created successfully.</p>"));
+				$this->redirect(array("/ypm/package/edit","name" => $model->name));
+			}
 		}
-		else {
-			$stage = 1;
-		}
-		$model = new APackage("stage".$stage);
-		// load the persistant page state
-		foreach($this->getPageState("APackage",array()) as $attribute => $value) {
-			$model->{$attribute} = $value;
+		$this->render("create",array("model" => $model));
+	}
+	
+	/**
+	 * Edits an installed package.
+	 * Called edit rather than update to avoid confusion with updating packages.
+	 * @param string $name The name of the package to edit
+	 */
+	public function actionEdit($name) {
+		$model = Yii::app()->packageManager->packages[$name];
+		if (!is_object($model)) {
+			throw new CHttpException(404,Yii::t("packages.ypm","No such package"));
 		}
 		$this->performAjaxValidation($model);
 		if (isset($_POST['APackage'])) {
 			$model->attributes = $_POST['APackage'];
-			if ($model->validate()) {
-				$this->setPageState("APackage", $model->attributes);
-				$stage = $stage + 1;
+			if ($model->save()) {
+				Yii::app()->user->setFlash("success",Yii::t("packages.ypm","<h2>Package Saved</h2><p>Your changes were saved successfully.</p>"));
+				$this->refresh();
 			}
 		}
-		$this->render("create",array("model" => $model, "stage" => $stage));
+		$this->render("edit",array("model" => $model));
 	}
 	
 	/**
