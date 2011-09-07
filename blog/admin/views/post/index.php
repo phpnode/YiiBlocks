@@ -79,4 +79,5 @@ $this->widget('zii.widgets.grid.CGridView', array(
 </div>
 <?php
 echo CHtml::endForm();
+
 $this->endWidget();

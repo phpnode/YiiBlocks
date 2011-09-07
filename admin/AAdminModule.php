@@ -6,7 +6,26 @@ Yii::import("packages.admin.components.*");
  * @author Charles Pick
  */
 class AAdminModule extends CWebModule {
-	public $mainMenu = array();
+	/**
+	 * The menu items to show for this module.
+	 * These menu items will be shown in the sidebar in the admin interface
+	 * @see CMenu::$items
+	 * @var array
+	 */
+	public $menuItems = array();
+
+	public function getMainMenu() {
+		$menuItems = array();
+		$menuItems = CMap::mergeArray($menuItems,$this->menuItems);
+		foreach(array_keys($this->getModules()) as $name) {
+			$module = $this->getModule($name);
+			if (!isset($module->menuItems)) {
+				continue;
+			}
+			$menuItems = CMap::mergeArray($menuItems,$module->menuItems);
+		}
+		return $menuItems;
+	}
 	/**
 	 * Holds the baseUrl of the assets
 	 * @var string
@@ -26,7 +45,6 @@ class AAdminModule extends CWebModule {
 	 * @return boolean whether the action should be executed.
 	 */
 	public function beforeControllerAction($controller,$action) {
-
 		return parent::beforeControllerAction($controller,$action);
 	}
 	/**

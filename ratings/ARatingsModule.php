@@ -8,29 +8,29 @@ Yii::import("packages.ratings.components.*");
  * @package packages.ratings
  * @author Charles Pick
  */
-class RatingsModule extends CWebModule {
-	
+class ARatingsModule extends CWebModule {
+
 	/**
 	 * The name of the ratings table
 	 * Defaults to "ratings"
-	 * @type string 
+	 * @type string
 	 */
 	public $ratingTable = "ratings";
-	
+
 	/**
 	 * Whether users must be logged in or not to rate items, defaults to true.
 	 * @var boolean
 	 */
 	public $requiresLogin = true;
-	
-	
+
+
 	/**
 	 * Holds an array of items to show in the main menu
 	 */
 	public $mainMenu = array(
 			array('label'=>'Home', 'url'=>array('/reviews/review/admin'))
 		);
-		
+
 	/**
 	 * Called when the module is being created.
 	 * Put any module specific configuration here
@@ -56,5 +56,5 @@ class RatingsModule extends CWebModule {
 		else
 			return false;
 	}
-	
+
 }

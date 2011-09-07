@@ -4,7 +4,7 @@
  * @author Charles Pick
  * @package packages.rbac.controllers
  */
-class RoleController extends AAdminBaseController {
+class RoleController extends ABaseAdminController {
 	/**
 	 * Shows a list of roles
 	 */

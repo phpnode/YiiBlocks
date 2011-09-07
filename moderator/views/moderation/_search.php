@@ -2,7 +2,7 @@
 /**
  * The search form for the {@link AModerationItem} model
  * @uses AModerationItem $model The moderation item model
- */ 
+ */
 ?>
 <div class="wide form">
 
@@ -11,7 +11,7 @@
 	'method'=>'get',
 )); ?>
 
-	
+
 	<div class="row">
 		<?php echo $form->label($model,'ownerModel'); ?>
 		<?php echo $form->dropDownList($model,'ownerModel',AModerationItem::listOwnerModels(),array("empty" => "")); ?>

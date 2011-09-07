@@ -7,15 +7,15 @@ Yii::import("packages.moderator.components.*");
  * @package packages.moderator
  * @author Charles Pick
  */
-class ModeratorModule extends CWebModule {
-	
+class AModeratorModule extends CWebModule {
+
 	/**
 	 * The name of the table that moderation information should be stored in.
 	 * Defaults to "moderation".
 	 * @var string
 	 */
 	public $moderationTable = "moderation";
-	
+
 	/**
 	 * Called when the module is being created.
 	 * Put any module specific configuration here
@@ -25,5 +25,5 @@ class ModeratorModule extends CWebModule {
 		return parent::init();
 	}
 
-	
+
 }

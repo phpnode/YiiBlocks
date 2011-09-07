@@ -16,7 +16,7 @@
  * @author Charles Pick
  * @package packages.linkable
  */
-class ALinkable extends CActiveRecordBehavior implements IALinkable {
+class ALinkable extends CBehavior implements IALinkable {
 	/**
 	 * The route to the controller for this model.
 	 * e.g. "/user"
@@ -72,7 +72,15 @@ class ALinkable extends CActiveRecordBehavior implements IALinkable {
 		}
 		else {
 			if ($this->attributes === null) {
-				$attributes = $this->owner->tableSchema->primaryKey;
+				if ($this->owner instanceof CActiveRecord) {
+					$attributes = $this->owner->tableSchema->primaryKey;
+				}
+				elseif(isset($this->owner->id)) {
+					$attributes = "id";
+				}
+				else {
+					$attributes = array();
+				}
 			}
 			else {
 				$attributes = $this->attributes;

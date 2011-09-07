@@ -10,14 +10,14 @@ class AFlashMessageWidget extends CWidget {
 	 * @see getMessageTypes()
 	 * @see setMessageTypes()
 	 * @var array
-	 */	
+	 */
 	protected $_messageTypes;
 	/**
 	 * The html options for the container
 	 * @var array
 	 */
 	public $htmlOptions = array();
-	
+
 	/**
 	 * The name of the tag used for the container.
 	 * Defaults to div.
@@ -25,13 +25,13 @@ class AFlashMessageWidget extends CWidget {
 	 * @var string
 	 */
 	public $tagName = "div";
-	
+
 	/**
 	 * Displays the flash message(s) if any.
 	 */
 	public function run() {
 		$messages = array();
-		
+
 		foreach($this->getMessageTypes() as $type => $details) {
 			$message = Yii::app()->user->getFlash($type);
 			if ($message) {
@@ -67,19 +67,19 @@ class AFlashMessageWidget extends CWidget {
 		if ($this->_messageTypes === null) {
 			$this->_messageTypes = array(
 					"info" => array(
-								"class" => "info message",
+								"class" => "info box",
 								"timeout" => 30,
 								),
 					"warning" => array(
-								"class" => "warning message",
+								"class" => "warning box",
 								"timeout" => 30
 								),
 					"error" => array(
-								"class" => "error message",
+								"class" => "error box",
 								"timeout" => false,
 								),
 					"success" => array(
-								"class" => "success message",
+								"class" => "success box",
 								"timeout" => false,
 								),
 				);

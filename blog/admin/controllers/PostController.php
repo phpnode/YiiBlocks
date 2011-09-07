@@ -3,7 +3,7 @@
  * The PostController controller class deals with viewing and managing {@link ABlogPost} models
  * @package application.modules.admin.modules.blog.controllers
  */
-class PostController extends AAdminBaseController
+class PostController extends ABaseAdminController
 {
 	public function actions() {
 		return array(

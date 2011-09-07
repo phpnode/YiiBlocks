@@ -25,7 +25,7 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 	 * @var integer
 	 */
 	protected $_totalReviews;
-	
+
 	/**
 	 * Holds the total review score for this item
 	 * @see getTotalReviewScore
@@ -39,7 +39,7 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 	public function getId() {
 		return $this->owner->primaryKey;
 	}
-	
+
 	/**
 	 * Gets the name of the class that is being reviewed.
 	 * @return string the owner model class name
@@ -47,8 +47,8 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 	public function getClassName() {
 		return get_class($this->owner);
 	}
-		
-	
+
+
 	/**
 	 * Gets the data provider for this set of reviews
 	 * @return CActiveDataProvider The dataProvider that retrieves the reviews
@@ -66,7 +66,7 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 					))->together());
 		return $dataProvider;
 	}
-	
+
 	/**
 	 * Adds a review to the owner model
 	 * @param Review $review The review to add
@@ -79,9 +79,9 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 		$review->ownerId = $this->getId();
 		return $review->save($runValidation);
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Named Scope: Orders a list of models by the most highly reviewd first
 	 * @return CActiveRecord The owner object with the scope applied
@@ -101,7 +101,7 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 		$this->owner->getDbCriteria()->mergeWith($criteria);
 		return $this->owner;
 	}
-	
+
 	/**
 	 * Named Scope: Orders a list of models by the least popular first
 	 * @return CActiveRecord The owner object with the scope applied
@@ -120,7 +120,7 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 		$this->owner->getDbCriteria()->mergeWith($criteria);
 		return $this->owner;
 	}
-	
+
 	/**
 	 * Attaches the behavior to the model
 	 * @param CComponent $component The model to attach to
@@ -140,7 +140,7 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 				"group" => false,
 			)
 		);
-		
+
 		$this->owner->metaData->addRelation(
 			"totalReviewScore",
 			array(
@@ -155,7 +155,7 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 				"group" => false,
 			)
 		);
-		
+
 		$this->owner->metaData->addRelation(
 			"averageRating",
 			array(
@@ -170,57 +170,57 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 				"group" => false,
 			)
 		);
-		
-		$relation =  array(
-				CActiveRecord::STAT,
-				"AReview",
-				"ownerId",
-				"condition" => "ownerModel = :reviewOwnerModel",
-				"params" => array(
-					":reviewOwnerModel" => $this->getClassName()
-				),
-				"group" => false,
+		if (!(Yii::app() instanceof CConsoleApplication)) {
+			$relation =  array(
+					CActiveRecord::STAT,
+					"AReview",
+					"ownerId",
+					"condition" => "ownerModel = :reviewOwnerModel",
+					"params" => array(
+						":reviewOwnerModel" => $this->getClassName()
+					),
+					"group" => false,
+				);
+			if (Yii::app()->getModule('reviews')->requiresLogin) {
+				$relation['condition'] .= " AND userHasReviewed.reviewerId = :reviewerId";
+				$relation['params'][":reviewerId"] = Yii::app()->user->id;
+			}
+			else {
+				$relation['condition'] .= " AND userHasReviewed.reviewerIP = :reviewerIP AND userHasReviewed.reviewerUserAgent = :reviewerUserAgent";
+				$relation['params'][":reviewerIP"] = $_SERVER['REMOTE_ADDR'];
+				$relation['params'][":reviewerUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
+			}
+
+
+			$this->owner->metaData->addRelation(
+				"userHasReviewed",
+				$relation
 			);
-		if (Yii::app()->getModule('reviews')->requiresLogin) {
-			$relation['condition'] .= " AND userHasReviewed.reviewerId = :reviewerId";
-			$relation['params'][":reviewerId"] = Yii::app()->user->id;
-		}
-		else {
-			$relation['condition'] .= " AND userHasReviewed.reviewerIP = :reviewerIP AND userHasReviewed.reviewerUserAgent = :reviewerUserAgent";
-			$relation['params'][":reviewerIP"] = $_SERVER['REMOTE_ADDR'];
-			$relation['params'][":reviewerUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
-		}
-		
-		
-		$this->owner->metaData->addRelation(
-			"userHasReviewed",
-			$relation
-		);
-		
-		
-		$relation =  array(
-				CActiveRecord::HAS_ONE,
-				"AReview",
-				"ownerId",
-				"condition" => "ownerModel = :reviewOwnerModel",
-				"params" => array(
-					":reviewOwnerModel" => $this->getClassName()
-				),
+
+
+			$relation =  array(
+					CActiveRecord::HAS_ONE,
+					"AReview",
+					"ownerId",
+					"condition" => "ownerModel = :reviewOwnerModel",
+					"params" => array(
+						":reviewOwnerModel" => $this->getClassName()
+					),
+				);
+			if (Yii::app()->getModule('reviews')->requiresLogin) {
+				$relation['condition'] .= " AND userReview.reviewerId = :reviewerId";
+				$relation['params'][":reviewerId"] = Yii::app()->user->id;
+			}
+			else {
+				$relation['condition'] .= " AND userReview.reviewerIP = :reviewerIP AND userReview.reviewerUserAgent = :reviewerUserAgent";
+				$relation['params'][":reviewerIP"] = $_SERVER['REMOTE_ADDR'];
+				$relation['params'][":reviewerUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
+			}
+			$this->owner->metaData->addRelation(
+				"userReview",
+				$relation
 			);
-		if (Yii::app()->getModule('reviews')->requiresLogin) {
-			$relation['condition'] .= " AND userReview.reviewerId = :reviewerId";
-			$relation['params'][":reviewerId"] = Yii::app()->user->id;
 		}
-		else {
-			$relation['condition'] .= " AND userReview.reviewerIP = :reviewerIP AND userReview.reviewerUserAgent = :reviewerUserAgent";
-			$relation['params'][":reviewerIP"] = $_SERVER['REMOTE_ADDR'];
-			$relation['params'][":reviewerUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
-		}
-		$this->owner->metaData->addRelation(
-			"userReview",
-			$relation
-		);
-		
 		$this->owner->metaData->addRelation(
 			"reviews",
 			array(
@@ -233,8 +233,8 @@ class AReviewable extends CActiveRecordBehavior implements IAReviewable {
 				),
 			)
 		);
-		
+
 	}
-	
+
 
 }

@@ -5,21 +5,36 @@
  */
 ?>
 <?php $this->beginContent('packages.admin.views.layouts.main'); ?>
-<section class='width_2'>
+<section id='sidebar' class='grid_3 alpha'>
+	<header id='top'>
+		<?php
+			echo CHtml::link(Yii::app()->name." Admin",array("/admin/default/index"),array("id" => "logo"));
+		?>
+		<div id='userInfo'>
+			<?php
+			if (!Yii::app()->user->isGuest) {
+				echo "Welcome, ".CHtml::encode(Yii::app()->user->name);
+				echo "&nbsp;";
+				echo CHtml::link("Logout",array("/site/logout"),array("class" => "logout button"));
+			}
+			?>
+		</div>
+	</header>
+		<?php
+		$this->widget('zii.widgets.CMenu',array(
+			"activateParents" => true,
+			'items'=>Yii::app()->getModule("admin")->mainMenu
+		));
+		?>
+</section>
+<section id='content' class='grid_9 omega'>
+	<?php if(isset($this->breadcrumbs)):?>
+		<?php $this->widget('zii.widgets.CBreadcrumbs', array(
+			'links'=>CMap::mergeArray(array("Admin" => array("/admin/")),$this->breadcrumbs),
+			'htmlOptions' => array("class" => "breadcrumbs"),
+		)); ?>
+
+	<?php endif?>
 	<?php echo $content; ?>
 </section>
-<article class='width_1'>
-	<header><h2>Operations</h2></header>
-	<?php
-			$this->beginWidget('zii.widgets.CPortlet', array(
-				'title'=>'',
-				'htmlOptions' => array(),
-			));
-			$this->widget('zii.widgets.CMenu', array(
-				'items'=>$this->menu,
-				'htmlOptions'=>array('class'=>'operations'),
-			));
-			$this->endWidget();
-		?>
-</article>
 <?php $this->endContent(); ?>

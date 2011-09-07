@@ -14,7 +14,7 @@ class AAdminPortlet extends CPortlet {
 	/**
 	 * @var array the HTML attributes for the portlet container tag.
 	 */
-	public $htmlOptions=array('class'=>'adminPortlet grid_12 alpha');
+	public $htmlOptions=array('class'=>'adminPortlet grid_12 alpha omega');
 
 	/**
 	 * @var string the CSS class for the decoration container tag.

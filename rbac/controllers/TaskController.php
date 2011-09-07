@@ -4,7 +4,7 @@
  * @author Charles Pick
  * @package packages.rbac.controllers
  */
-class TaskController extends AAdminBaseController {
+class TaskController extends ABaseAdminController {
 
 	public function filters() {
 		return array(

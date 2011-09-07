@@ -1,7 +1,7 @@
 <?php
-Yii::import("packages.moderator.ModeratorModule",true);
-Yii::import("packages.ratings.RatingsModule",true);
-Yii::import("packages.voting.VotingModule",true);
+Yii::import("packages.moderator.AModeratorModule",true);
+Yii::import("packages.ratings.ARatingsModule",true);
+Yii::import("packages.voting.AVotingModule",true);
 Yii::import("packages.reviews.models.*");
 Yii::import("packages.reviews.interfaces.*");
 Yii::import("packages.reviews.components.*");
@@ -11,28 +11,28 @@ Yii::import("packages.reviews.components.*");
  * @package packages.reviews
  * @author Charles Pick
  */
-class ReviewsModule extends CWebModule {
-	
+class AReviewsModule extends CWebModule {
+
 	/**
 	 * The name of the reviews table
 	 * Defaults to "reviews"
-	 * @type string 
+	 * @type string
 	 */
 	public $reviewTable = "reviews";
-	
+
 	/**
 	 * Whether users must be logged in or not to review, defaults to true.
 	 * @var boolean
 	 */
 	public $requiresLogin = true;
-	
+
 	/**
 	 * Whether reviews should be moderated before they go live.
 	 * Defaults to true.
 	 * @var boolean
 	 */
 	public $moderateReviews = true;
-	
+
 	/**
 	 * The URL users should be redirected to after submitting a review.
 	 * Defaults to array("/site/index").
@@ -45,7 +45,7 @@ class ReviewsModule extends CWebModule {
 	public $mainMenu = array(
 			array('label'=>'Home', 'url'=>array('/reviews/review/admin'))
 		);
-		
+
 	/**
 	 * Called when the module is being created.
 	 * Put any module specific configuration here
@@ -54,5 +54,5 @@ class ReviewsModule extends CWebModule {
 	{
 		return parent::init();
 	}
-	
+
 }

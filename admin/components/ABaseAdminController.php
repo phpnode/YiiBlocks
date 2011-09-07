@@ -4,6 +4,6 @@
  * @package packages.admin.components
  * @author Charles Pick
  */
-class AAdminBaseController extends Controller {
-	public $layout = "packages.admin.views.layouts.main";
+class ABaseAdminController extends Controller {
+	public $layout = "packages.admin.views.layouts.column2";
 }

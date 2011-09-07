@@ -83,7 +83,7 @@ $this->beginWidget("AAdminPortlet",
 
 	<div class='grid_6 alpha'>
 	<h4>Selected Operations</h4>
-	<p>These operations belong to this task.<br />&nbsp;</p>
+	<p>These operations belong to this task.</p>
 	<?php
 	$csrfData = json_encode(array(Yii::app()->request->csrfTokenName => Yii::app()->request->csrfToken));
 	$ajax = CHtml::ajax(array(

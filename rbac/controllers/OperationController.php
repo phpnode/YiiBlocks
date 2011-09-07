@@ -4,7 +4,7 @@
  * @author Charles Pick
  * @package packages.rbac.controllers
  */
-class OperationController extends AAdminBaseController {
+class OperationController extends ABaseAdminController {
 	/**
 	 * Shows a list of operations
 	 */
