@@ -18,7 +18,7 @@ class ABlogAdminModule extends ABaseAdminModule {
 	protected $_menuItems = array(
 		array(
 			"label" => "Blog",
-			"url" => array("/admin/blog/blog/index"),
+			"url" => array("/admin/blog/post/index"),
 			"linkOptions" => array(
 				"class" => "note icon",
 			),

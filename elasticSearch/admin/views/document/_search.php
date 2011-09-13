@@ -7,7 +7,6 @@
 <div class="form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl($this->route,array("name" => $type->index->name, "type" => $type->name)),
 	'method'=>'get',
 )); ?>
 

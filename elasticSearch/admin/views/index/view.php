@@ -11,12 +11,6 @@ $this->breadcrumbs=array(
 );
 $this->beginWidget("AAdminPortlet",
 				   		array(
-							"menuItems" => array(
-								array(
-									"label" => "Edit",
-									"url" => array("/admin/elasticSearch/index/update", "name" => $model->name),
-								),
-						),
 							"title" => "Elastic Search Index: ".$model->name
 					   ));
 $this->widget("zii.widgets.CDetailView",
@@ -46,12 +40,28 @@ foreach($model->getTypes() as $docType) {
 $this->beginWidget("AAdminPortlet",
 				   array(
 						"title" => "Document Types",
-						"sidebarMenuItems" => $sidebarMenuItems
+						"sidebarMenuItems" => $sidebarMenuItems,
 					   ));
 if (is_object($type)) {
 	$this->beginWidget("AAdminPortlet",
 				   array(
 						"title" => $type->name,
+					    "menuItems" => array(
+							array(
+								"label" => "Create Document",
+								"url" => array("document/create","index" => $model->name, "type" => $type->name)
+							),
+							array(
+										"label" => "Delete All",
+										"url" => "#",
+										'linkOptions'=>array(
+											'class' => 'delete',
+											'params' => array(Yii::app()->request->csrfTokenName => Yii::app()->request->getCsrfToken()),
+											'submit'=>array("deleteType","name" => $model->name, "type" => $type->name),
+											'confirm'=>'Are you sure you want to delete this document type? All documents in this type will be deleted!'
+										),
+									)
+						)
 					   ));
 	$this->renderPartial("/document/_search",array("type" => $type));
 	$this->widget('zii.widgets.CListView', array(

@@ -32,7 +32,7 @@ class AElasticSearchDocumentType extends CComponent {
 	 * @param AElasticSearch $connection the connection for the index
 	 */
 	public function __construct($name, AElasticSearchIndex $index, AElasticSearch $connection) {
-		$this->name = $name;
+		$this->name = (string) $name;
 		$this->index = $index;
 		$this->connection = $connection;
 	}
@@ -67,10 +67,28 @@ class AElasticSearchDocumentType extends CComponent {
 		return $this->index->count($criteria,$this);
 	}
 	/**
+	 * Adds a document to the index
+	 * @param AElasticSearchDocument $document the document to index
+	 * @return array the index results
+	 */
+	public function index(AElasticSearchDocument $document) {
+		return $this->index->index($document,$this);
+	}
+	/**
+	 * Removes type or document from the index.
+	 * If no document is specified the whole type will be deleted!
+	 * @param AElasticSearchDocument $document the document to delete, if null the type will be deleted
+	 * @return array the index results
+	 */
+	public function delete(AElasticSearchDocument $document = null) {
+		return $this->index->delete($document,$this);
+	}
+	/**
 	 * Converts the object to the type name
 	 * @return string the type name
 	 */
 	public function __toString() {
+
 		return $this->name;
 	}
 }

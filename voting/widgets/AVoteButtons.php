@@ -188,7 +188,7 @@ class AVoteButtons extends CWidget {
 	/**
 	 * Registers the required scripts
 	 */
-	public function registerScripts() {
+	public static function registerScripts() {
 		$baseUrl = Yii::app()->assetManager->publish(dirname(__FILE__)."/assets/".__CLASS__);
 		Yii::app()->clientScript->registerScriptFile($baseUrl."/AVoteButtons.js");
 

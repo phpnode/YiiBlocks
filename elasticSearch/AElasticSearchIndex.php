@@ -29,13 +29,24 @@ class AElasticSearchIndex extends CFormModel {
 	 */
 	public $totalDocuments = 0;
 
-	protected $_types;
-
 	/**
 	 * The elastic search connection
 	 * @var AElasticSearch
 	 */
-	protected $connection;
+	public $connection;
+
+	/**
+	 * An array of document types
+	 * @var AElasticSearchDocumentType[]
+	 */
+	protected $_types;
+	/**
+	 * Gets the index size in mega bytes
+	 * @return float the size in megabytes
+	 */
+	public function getSizeInMegaBytes() {
+		return $this->sizeInBytes / (1024 * 1024);
+	}
 
 	/**
 	 * Loads a list of search indexes from an elastic search response
@@ -59,7 +70,8 @@ class AElasticSearchIndex extends CFormModel {
 
 	}
 	/**
-	 * @return
+	 * Get a list of document types that belong to this index
+	 * @return AElasticSearchDocumentType[] an array of document types
 	 */
 	public function getTypes() {
 		if ($this->_types === null) {
@@ -92,6 +104,33 @@ class AElasticSearchIndex extends CFormModel {
 		}
 		return $this->connection->count($this->name,$type,$criteria);
 	}
+
+	/**
+	 * Adds a document to this elastic search index
+	 * @param AElasticSearchDocument $document the elastic search document
+	 * @param AElasticSearchDocumentType|string $type the type to search
+	 * @return array the search results
+	 */
+	public function index(AElasticSearchDocument $document, $type = null) {
+		if (!($type instanceof AElasticSearchDocumentType)) {
+			$type = new AElasticSearchDocumentType($type,$this,$this->connection);
+		}
+		return $this->connection->index($this->name,$type,$document->getId(),$document);
+	}
+
+	/**
+	 * Deletes an item from this elastic search index
+	 * @param AElasticSearchDocument $document the elastic search document to delete, if any
+	 * @param AElasticSearchDocumentType|string $type the document type
+	 * @return array the search results
+	 */
+	public function delete(AElasticSearchDocument $document = null, $type = null) {
+		if ($document !== null && $type === null) {
+			$type = $document->getType();
+		}
+		return $this->connection->delete($this->name,$type,$document);
+	}
+
 	/**
 	 * @return string the index name
 	 */

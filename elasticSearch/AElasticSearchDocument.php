@@ -4,7 +4,7 @@
  * @author Charles Pick
  * @package packages.elasticSearch
  */
-class AElasticSearchDocument extends CAttributeCollection {
+class AElasticSearchDocument extends CModel implements IteratorAggregate,ArrayAccess,Countable {
 
 	/**
 	 * The unique id for this document
@@ -29,10 +29,42 @@ class AElasticSearchDocument extends CAttributeCollection {
 	 */
 	protected $_name;
 	/**
-	 * @return array the events
+	 * The document elements.
+	 * A typed list containing document elements
+	 * @var CAttributeCollection
 	 */
-	public function events() {
-		return array();
+	protected $_attributes;
+	/**
+	 * The parent document
+	 * @var AElasticSearchDocument
+	 */
+	protected $_parent;
+
+	/**
+	 * Holds the version number for this document
+	 * @var integer
+	 */
+	protected $_version;
+
+	/**
+	 * Gets a list of attribute names on the model
+	 * @return array the list of attribute names
+	 */
+	public function attributeNames() {
+		return array_keys($this->_attributes->toArray());
+	}
+	/**
+	 * Sets the attribute values in a massive way.
+	 * @param array $values attribute values (name=>value) to be set.
+	 * @see getSafeAttributeNames
+	 * @see attributeNames
+	 */
+	public function setAttributes($values) {
+		$this->_attributes = new CAttributeCollection();
+		$this->_attributes->caseSensitive = false;
+		foreach($values as $attribute => $value) {
+			$this->add($attribute,$value);
+		}
 	}
 	/**
 	 * Declares behaviors to attach to the document
@@ -50,16 +82,93 @@ class AElasticSearchDocument extends CAttributeCollection {
 	}
 	/**
 	 * Constructor.
-	 * Initializes the list with an array or an iterable object.
 	 * @param array $data the intial data. Default is null, meaning no initialization.
-	 * @param boolean $readOnly whether the list is read-only
-	 * @throws CException If data is not null and neither an array nor an iterator.
+	 * See {@link CModel::scenario} on how scenario is used by models.
+	 * @see getScenario
 	 */
-	public function __construct($data=null,$readOnly=false) {
-		parent::__construct($data,$readOnly);
-		foreach($this->behaviors() as $name => $behavior) {
-			$this->attachBehavior($name,$behavior);
+	public function __construct($data = null)
+	{
+		$this->_attributes = new CAttributeCollection();
+		$this->_attributes->caseSensitive = false;
+		if (count($data)) {
+			foreach($data as $attribute => $value) {
+				$this->add($attribute,$value);
+			}
 		}
+
+		$this->init();
+		$this->attachBehaviors($this->behaviors());
+		$this->afterConstruct();
+	}
+	/**
+	 * Returns a property value or an event handler list by property or event name.
+	 * This method overrides the parent implementation by returning
+	 * a key value if the key exists in the collection.
+	 * @param string $name the property name or the event name
+	 * @return mixed the property value or the event handler list
+	 * @throws CException if the property/event is not defined.
+	 */
+	public function __get($name)
+	{
+		if($this->_attributes->contains($name))
+			return $this->_attributes->itemAt($name);
+		else
+			return parent::__get($name);
+	}
+
+	/**
+	 * Sets value of a component property.
+	 * This method overrides the parent implementation by adding a new key value
+	 * to the collection.
+	 * @param string $name the property name or event name
+	 * @param mixed $value the property value or event handler
+	 * @throws CException If the property is not defined or read-only.
+	 */
+	public function __set($name,$value)
+	{
+		$setter = "set".$name;
+		if (method_exists($this,$setter)) {
+			return $this->{$setter}($value);
+		}
+		$this->add($name,$value);
+	}
+
+	/**
+	 * Checks if a property value is null.
+	 * This method overrides the parent implementation by checking
+	 * if the key exists in the collection and contains a non-null value.
+	 * @param string $name the property name or the event name
+	 * @return boolean whether the property value is null
+	 * @since 1.0.1
+	 */
+	public function __isset($name)
+	{
+		if($this->_attributes->contains($name))
+			return $this->_attributes->itemAt($name)!==null;
+		else
+			return parent::__isset($name);
+	}
+
+	/**
+	 * Sets a component property to be null.
+	 * This method overrides the parent implementation by clearing
+	 * the specified key value.
+	 * @param string $name the property name or the event name
+	 * @since 1.0.1
+	 */
+	public function __unset($name)
+	{
+		$this->_attributes->remove($name);
+	}
+	/**
+	 * Initializes this model.
+	 * This method is invoked in the constructor right after {@link scenario} is set.
+	 * You may override this method to provide code that is needed to initialize the model (e.g. setting
+	 * initial property values.)
+	 * @since 1.0.8
+	 */
+	public function init()
+	{
 	}
 
 
@@ -73,20 +182,23 @@ class AElasticSearchDocument extends CAttributeCollection {
 		if (is_array($value) && count($value)) {
 			if (is_string(array_shift(array_keys($value)))) {
 				$value = new AElasticSearchDocument($value);
+
 			}
 			else if (is_array(array_shift(array_values($value)))) {
 				foreach($value as $i => $item) {
 					if (is_array($item)) {
 						$value[$i] = new AElasticSearchDocument($item);
+						$value[$i]->setName($i);
+						$value[$i]->setParent($this);
 					}
 				}
 			}
 		}
-
-		if($this->caseSensitive)
-			parent::add($key,$value);
-		else
-			parent::add(strtolower($key),$value);
+		if ($value instanceof AElasticSearchDocumentElement) {
+			$value->setName($key);
+			$value->setParent($this);
+		}
+		$this->_attributes->add($key,$value);
 	}
 
 	/**
@@ -94,9 +206,16 @@ class AElasticSearchDocument extends CAttributeCollection {
 	 */
 	public function toArray() {
 		$data = array();
-		foreach(parent::toArray() as $key => $value) {
+		foreach($this->_attributes as $key => $value) {
 			if ($value instanceof AElasticSearchDocument) {
 				$value = $value->toArray();
+			}
+			elseif (is_array($value) && array_shift(array_values($value)) instanceof AElasticSearchDocument) {
+				foreach($value as $k => $v) {
+					if ($v instanceof AElasticSearchDocument) {
+						$value[$k] = $v->toArray();
+					}
+				}
 			}
 			$data[$key] = $value;
 		}
@@ -145,13 +264,7 @@ class AElasticSearchDocument extends CAttributeCollection {
 	{
 		return $this->_id;
 	}
-	/**
-	 * Gets the attribute names for this document
-	 * @return array the attribute names for this document
-	 */
-	public function attributeNames() {
-		return array_keys($this->toArray());
-	}
+
 	/**
 	 * Gets the attributes to show for CDetailView widgets
 	 * @return array the attributes to show in a CDetailView widget
@@ -224,40 +337,126 @@ class AElasticSearchDocument extends CAttributeCollection {
 		return $this->_name;
 	}
 	/**
-	 * Returns a value indicating whether the attribute is required.
-	 * Always false
-	 * @param string $attribute attribute name
-	 * @return boolean whether the attribute is required
-	 * @since 1.0.2
+	 * Saves the elastic search document
+	 * @param boolean $runValidation whether to run validation or not, defaults to true
+	 * @return boolean whether the save succeeded or not
 	 */
-	public function isAttributeRequired($attribute) {
-		return false;
+	public function save($runValidation = true) {
+		if ($runValidation && !$this->validate()) {
+			return false;
+		}
+		$response =  $this->getType()->index($this);
+		if (!$response->ok) {
+			return false;
+		}
+		$this->setId($response->_id);
+		$this->setVersion($response->_version);
+		return true;
+
+	}
+	/**
+	 * Deletes the elastic search document
+	 * @return boolean whether the delete succeeded or not
+	 */
+	public function delete() {
+		return $this->getType()->delete($this);
 	}
 
 	/**
-	 * Generates a user friendly attribute label.
-	 * This is done by replacing underscores or dashes with blanks and
-	 * changing the first letter of each word to upper case.
-	 * For example, 'department_name' or 'DepartmentName' becomes 'Department Name'.
-	 * @param string $name the column name
-	 * @return string the attribute label
+	 * Returns an iterator for traversing the items in the list.
+	 * This method is required by the interface IteratorAggregate.
+	 * @return CMapIterator an iterator for traversing the items in the list.
 	 */
-	public function generateAttributeLabel($name)
+	public function getIterator()
 	{
-		return ucwords(trim(strtolower(str_replace(array('-','_','.'),' ',preg_replace('/(?<![A-Z])[A-Z]/', ' \0', $name)))));
+		return $this->_attributes->getIterator();
 	}
 
 	/**
-	 * Returns the text label for the specified attribute.
-	 * @param string $attribute the attribute name
-	 * @return string the attribute label
-	 * @see generateAttributeLabel
-	 * @see attributeLabels
+	 * Returns the number of items in the map.
+	 * This method is required by Countable interface.
+	 * @return integer number of items in the map.
 	 */
-	public function getAttributeLabel($attribute)
+	public function count()
 	{
-		return $this->generateAttributeLabel($attribute);
+		return $this->_attributes->getCount();
+	}
+/**
+	 * Returns whether there is an element at the specified offset.
+	 * This method is required by the interface ArrayAccess.
+	 * @param mixed $offset the offset to check on
+	 * @return boolean
+	 */
+	public function offsetExists($offset)
+	{
+		return $this->_attributes->contains($offset);
 	}
 
-	
+	/**
+	 * Returns the element at the specified offset.
+	 * This method is required by the interface ArrayAccess.
+	 * @param integer $offset the offset to retrieve element.
+	 * @return mixed the element at the offset, null if no element is found at the offset
+	 */
+	public function offsetGet($offset)
+	{
+		return $this->_attributes->itemAt($offset);
+	}
+
+	/**
+	 * Sets the element at the specified offset.
+	 * This method is required by the interface ArrayAccess.
+	 * @param integer $offset the offset to set element
+	 * @param mixed $item the element value
+	 */
+	public function offsetSet($offset,$item)
+	{
+		$this->_attributes->add($offset,$item);
+	}
+
+	/**
+	 * Unsets the element at the specified offset.
+	 * This method is required by the interface ArrayAccess.
+	 * @param mixed $offset the offset to unset element
+	 */
+	public function offsetUnset($offset)
+	{
+		$this->_attributes->remove($offset);
+	}
+
+	/**
+	 * Sets the parent for this item
+	 * @param AElasticSearchDocument $parent the parent document
+	 */
+	public function setParent($parent)
+	{
+		$this->_parent = $parent;
+	}
+
+	/**
+	 * Gets the parent document
+	 * @return AElasticSearchDocument the parent document
+	 */
+	public function getParent()
+	{
+		return $this->_parent;
+	}
+
+	/**
+	 * Sets the version number for this document
+	 * @param integer $version the version number
+	 */
+	public function setVersion($version)
+	{
+		$this->_version = $version;
+	}
+
+	/**
+	 * Gets the version number for this document
+	 * @return integer the version number
+	 */
+	public function getVersion()
+	{
+		return $this->_version;
+	}
 }

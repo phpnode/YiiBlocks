@@ -24,8 +24,12 @@
   <!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects -->
   <script src="<?php echo $baseUrl; ?>/js/modernizr-1.7.min.js"></script>
 	<?php
-	Yii::app()->clientScript->registerCoreScript("jquery");
-	Yii::app()->clientScript->registerCoreScript("jquery.ui");
+	$clientScript = Yii::app()->clientScript;
+	$clientScript->registerCoreScript("jquery");
+	$clientScript->registerCoreScript("jquery.ui");
+	$clientScript->registerScriptFile($baseUrl."/js/jquery.cookie.js");
+	$clientScript->registerScriptFile($baseUrl."/js/AAdminInterface.js");
+	$clientScript->registerScript("runAdmin","AAdminInterface.run()");
 	?>
 </head>
 

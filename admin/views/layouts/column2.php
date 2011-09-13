@@ -6,6 +6,7 @@
 ?>
 <?php $this->beginContent('packages.admin.views.layouts.main'); ?>
 <section id='sidebar' class='grid_3 alpha'>
+	<a href='#' class='collapsible'>Collapse</a>
 	<header id='top'>
 		<?php
 			echo CHtml::link(Yii::app()->name." Admin",array("/admin/default/index"),array("id" => "logo"));
@@ -20,6 +21,8 @@
 			?>
 		</div>
 	</header>
+
+	<br />
 		<?php
 		$this->widget('zii.widgets.CMenu',array(
 			"activateParents" => true,

@@ -36,7 +36,46 @@ class IndexController extends ABaseAdminController {
 		}
 		$this->render("view",array("model" => $model, "type" => $type));
 	}
+	/*
+	 * Deletes an elastic seearch document type
+	 * @param string $name the name of the elastic search index
+	 * @param string $type the type to delete
+	 */
+	public function actionDeleteType($name, $type) {
+		if(Yii::app()->request->isPostRequest) {
+			// we only allow deletion via POST request
+			$this->loadModel($name)->getTypes()->{$type}->delete();
 
+			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+			if(!isset($_GET['ajax'])) {
+				// we need to wait a second for ES to update
+				sleep(1);
+				$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', "name" => $name));
+			}
+		}
+		else
+			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+	}
+	/*
+	 * Deletes an elastic seearch index
+	 * @param string $name the name of the elastic search index
+	 * @param string $type the type to delete
+	 */
+	public function actionDelete($name) {
+		if(Yii::app()->request->isPostRequest) {
+			// we only allow deletion via POST request
+			$this->loadModel($name)->delete();
+
+			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+			if(!isset($_GET['ajax'])) {
+				// we need to wait a second for ES to update
+				sleep(1);
+				$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', "name" => $name));
+			}
+		}
+		else
+			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
+	}
 	/**
 	 * Loads an elastic search index by name
 	 * @throws CHttpException if the index doesn't exist

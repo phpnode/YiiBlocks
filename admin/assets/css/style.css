@@ -193,7 +193,9 @@ button {  width: auto; overflow: visible; }
 .omega {
 	margin-right: 0;
 }
-
+.alpha.omega.grid_12 {
+	width:100%;
+}
 /* Grid >> 12 Columns
 ----------------------------------------------------------------------------------------------------*/
 
@@ -540,6 +542,22 @@ pre {
 	border-right: #c2c2c2 solid 1px;
 	margin-right: -1px;
 }
+	#sidebar.collapsed {
+		width:3% !important;
+	}
+	#sidebar.collapsed header {
+		 display: none;
+	 }
+	#sidebar.collapsed ul li ul {
+		display: none !important;
+	}
+	#sidebar.collapsed a.icon {
+		display: block;
+		width:16px;
+		height:16px;
+		padding-left: 0px;
+		text-indent: -99909px;
+	}
 	#sidebar > ul {
 		list-style: none;
 		margin-left:0px;
@@ -589,6 +607,9 @@ pre {
 	#sidebar > ul > li > ul > li.active a {
 		color:#bb432e;
 	}
+#sidebar.collapsed + #content {
+	width:92% !important;
+}
 article {
 	display:block;
 	overflow: hidden;
@@ -685,6 +706,30 @@ article section.sidebar ul.menu li a {
 	display:block;
 	color:#666;
 }
+
+a.collapsible {
+	float:right;
+	margin-top:5px;
+	background:transparent url('expandbuttons.png') no-repeat;
+	height:14px;
+	width:14px;
+	display:inline-block;
+	text-decoration:none;
+	text-indent:-999px;
+}
+a.collapsible {
+	background-position:0px 0px;
+}
+.collapsed a.collapsible {
+	background-position:-14px 0px;
+}
+a.collapsible:hover {
+	background-position:0px -14px;
+}
+.collapsed a.collapsible:hover {
+	background-position:-14px -14px;
+}
+
 span.smallPostIt {
 	background: #f9ee73;
 	padding:5px;
@@ -759,6 +804,9 @@ button.button {
 	background-position: center left;
 }
 a.iconOnly {
+	display: block;
+	width: 16px;
+	height: 16px;
 	text-indent:-9999px;
 	text-decoration:none;
 }
@@ -776,6 +824,9 @@ a.iconOnly {
 }
 .icon.elasticsearch {
 	background-image: url("icons/elasticsearch.png");
+}
+.icon.database {
+	background-image: url("icons/database.png");
 }
 .icon.delete {
 	background-image: url("icons/delete.png");
@@ -1467,7 +1518,6 @@ div.wide.form div.number {
  */
 div.arrayInput {
 	position:relative;
-	margin-left:235px;
 }
 
 table.array {

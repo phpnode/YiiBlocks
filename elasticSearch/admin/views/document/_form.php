@@ -10,14 +10,15 @@
 	'id'=>'aelastic-search-document-form',
 	'enableAjaxValidation'=>false,
 )); ?>
-
-	<div class="row">
-		<?php echo $form->labelEx($document,'name'); ?>
-		<?php echo $form->textField($document,'name',array('size'=>60,'maxlength'=>64)); ?>
-	</div>
+<?php
+	$this->widget("packages.arrayInput.AArrayInputWidget",array(
+															 "name" => get_class($document),
+															 "value" => $document->toArray(),
+														  ));
+	?>
+	<br /><br />
 	</div>
 	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save',array("class" => "save button")); ?>
+		<?php echo CHtml::submitButton('Save',array("class" => "save button")); ?>
 	</div>
-
 <?php $this->endWidget(); ?>

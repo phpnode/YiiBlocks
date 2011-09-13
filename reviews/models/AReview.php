@@ -5,8 +5,8 @@ Yii::import("packages.voting.components.AVotable");
 /**
  * A base model for user provided reviews.
  * Reviews can be attached to other models using the AReviewable behavior.
- * 
- * 
+ *
+ *
  * @property string $id the vote id
  * @property string $ownerModel the model class that this vote belongs to
  * @property string $ownerId the id of the owner model
@@ -15,40 +15,40 @@ Yii::import("packages.voting.components.AVotable");
  * @property string $reviewerUserAgent the user agent of the reviewer
  * @property integer $score the vote score, either +1 or -1
  * @property string $timeAdded the time the vote was added
- * 
- * 
+ *
+ *
  * @author Charles Pick
  * @package packages.reviews
  */
 class AReview extends CActiveRecord implements IARating, IAModeratable {
-	
+
 	/**
 	 * The behaviors attached to this model.
 	 * Child classes that override this method should call the
 	 * parent implementation.
 	 * @see CActiveRecord::behaviors()
-	 * @return array The behaviors to attach 
+	 * @return array The behaviors to attach
 	 */
 	public function behaviors() {
 		$behaviors = array(
-			
-			"decorator" => array(
+
+			"ADecorator" => array(
 					"class" => "packages.decorating.AModelDecorator",
 					"decoratorPath" => "packages.reviews.views.review",
 				),
-			"votable" => array(
+			"AVotable" => array(
 					"class" => "packages.voting.components.AVotable",
 				),
-			"ownable" => array(
+			"AOwnable" => array(
 					"class" => "packages.ownable.AOwnable",
 					"attribute" => "reviewer",
 					"keyAttribute" => "reviewerId",
 					"ownerClassName" => "User"
 				),
-			"linkable" => array(
+			"ALinkable" => array(
 					"class" => "packages.linkable.ALinkable"
 				),
-			
+
 		);
 		if (Yii::app()->getModule("reviews")->moderateReviews) {
 			$behaviors["moderatable"] = array(
@@ -57,7 +57,7 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 		}
 		return $behaviors;
 	}
-	
+
 	/**
 	 * Gets the id of the object being moderated.
 	 * @return integer the id of the object being moderated.
@@ -65,7 +65,7 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 	public function getId() {
 		return $this->id;
 	}
-	
+
 	/**
 	 * Gets the name of the class that is being moderated.
 	 * @return string the owner model class name
@@ -73,7 +73,7 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 	public function getClassName() {
 		return __CLASS__;
 	}
-	
+
 	/**
 	 * Whether this particular object should be moderated.
 	 * @return boolean true if the object should be moderated
@@ -81,10 +81,10 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 	public function isModeratable() {
 		return true;
 	}
-	
-	
+
+
 	/**
-	 * The beforeSave event, sets the reviewer ip, user agent 
+	 * The beforeSave event, sets the reviewer ip, user agent
 	 * and user id if possible.
 	 * @see CActiveRecord::beforeSave()
 	 */
@@ -125,7 +125,7 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 	}
 
 	/**
-	 * Returns the validation rules for attributes. 
+	 * Returns the validation rules for attributes.
 	 * @see CModel::rules()
 	 * @return array validation rules for model attributes.
 	 */
@@ -152,7 +152,7 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array();
-		
+
 	}
 
 	/**
@@ -208,12 +208,12 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 		$criteria->condition = "t.ownerModel = :voteOwnerModel AND t.ownerId = :voteOwnerId";
 		$criteria->params[":voteOwnerModel"] = get_class($owner);
 		$criteria->params[":voteOwnerId"] = $owner->primaryKey;
-		
+
 		$this->getDbCriteria()->mergeWith($criteria);
 		return $this;
 	}
-	
-	
+
+
 	/**
 	 * Named Scope: Returns all reviews by the current user
 	 * @return AReview $this The review model with the scope applied.
@@ -229,10 +229,10 @@ class AReview extends CActiveRecord implements IARating, IAModeratable {
 			$criteria->params[":reviewerIP"] = $_SERVER['REMOTE_ADDR'];
 			$criteria->params[":reviewerUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
 		}
-		
+
 		$this->getDbCriteria()->mergeWith($criteria);
 		return $this;
 	}
-	
-	
+
+
 }

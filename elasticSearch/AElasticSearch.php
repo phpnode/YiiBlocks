@@ -111,6 +111,7 @@ class AElasticSearch extends CApplicationComponent {
 			$offset = $query->offset;
 		}
 		$n = 0;
+
 		foreach($hits->hits as $hit) {
 			$n++;
 			$result = new AElasticSearchResult($hit['_source']);
@@ -189,27 +190,23 @@ class AElasticSearch extends CApplicationComponent {
 	 * @param string $type The type of the object to index
 	 * @param mixed $id The ID of the item to index
 	 * @param array $data The document data to store
-	 * @return array The response from the server or false if there was an error
+	 * @return boolean true if the index succeeded
 	 */
 	public function index($index, $type, $id, $data) {
 
-		if (function_exists("json_encode")) {
-			$data = json_encode($data);
-		}
-		else {
-			$data = CJSON::encode($data);
-		}
 		if ($index === null) {
 			$index = $this->defaultIndex;
 		}
+		if ($type instanceof AElasticSearchDocumentType) {
+			$type = $type->name;
+		}
 		$url = $this->url.$index."/".$type."/".$id;
-		$curl = new ACurl();
-		$curl->getOptions()->mergeWith($this->curlOptions);
+		$request = $this->makeRequest();
 		try {
-			return $curl->post($url,$data)->exec()->fromJSON();
+			return $request->post($url,$this->encode($data))->exec();
 		}
 		catch (ACurlException $e) {
-			print_r($e);
+			CVarDumper::dump($e,10,true);
 			die();
 			return false;
 		}
@@ -280,20 +277,40 @@ class AElasticSearch extends CApplicationComponent {
 	 * @param string $type The type of the object to index
 	 * @param mixed $id The ID of the item to index
 	 * @param array $data The document data to store
-	 * @return array The response from the server or false if there was an error
+	 * @return boolean whether the delete succeeded or not
 	 */
 	public function delete($index, $type, $id) {
 		if ($index === null) {
 			$index = $this->defaultIndex;
 		}
-		$url = $this->url.$index."/".$type."/".$id;
-		$curl = new ACurl();
-		$curl->getOptions()->mergeWith($this->curlOptions);
+		if ($id instanceof AElasticSearchDocument) {
+			$id = $id->getId();
+		}
+		$url = $this->url.$index;
+		if ($type !== null) {
+			$url .= "/".$type;
+		}
+		if ($id !== null) {
+			$url .= "/".$id;
+		}
+		$request = $this->makeRequest();
 		try {
-			return $curl->delete($url)->exec()->fromJSON();
+			return $request->delete($url)->exec()->ok;
 		}
 		catch (ACurlException $e) {
 			return false;
 		}
+	}
+
+	public function getStatus() {
+		$request = $this->makeRequest();
+		$url = $this->url."_cluster/state";
+		return $request->get($url)->exec();
+	}
+
+	public function getCluster() {
+		$request = $this->makeRequest();
+		$url = $this->url."_cluster/state";
+		return new AElasticSearchCluster($request->get($url)->exec());
 	}
 }

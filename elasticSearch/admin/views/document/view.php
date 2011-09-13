@@ -22,11 +22,18 @@ $this->beginWidget("AAdminPortlet",
 									   "url" => array("/admin/elasticSearch/document/update","id" => $document->id, "type" => $document->type->name, "index" => $document->type->index->name),
 								   ),
 						   			array(
-									   "label" => "Delete",
-									   "url" => array("/admin/elasticSearch/document/update","id" => $document->id, "type" => $document->type->name, "index" => $document->type->index->name),
-								   ),
+										"label" => "Delete",
+										"url" => "#",
+										'linkOptions'=>array(
+											'class' => 'delete',
+											'params' => array(Yii::app()->request->csrfTokenName => Yii::app()->request->getCsrfToken()),
+											'submit'=>$document->createUrl("delete"),
+											'confirm'=>'Are you sure you want to delete this item?'
+										),
+									)
 							   ) : array()),
 					   ));
+#CVarDumper::dump($document,5,true);
 $this->widget("zii.widgets.CDetailView",
 	  array(
 		  "data" => $document,
@@ -47,7 +54,7 @@ foreach($document as $name => $element) {
 
 			foreach($element as $item) {
 				if ($item instanceof AElasticSearchDocument) {
-					$this->renderPartial("view",array("document" => $item));
+					$this->renderPartial("_element",array("data" => $item));
 				}
 				else {
 					echo $item."<br />";

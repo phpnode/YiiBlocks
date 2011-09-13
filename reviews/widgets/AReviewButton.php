@@ -10,19 +10,19 @@
 	 * @var CActiveRecord
 	 */
  	public $model;
-	
+
 	/**
 	 * The label that should appear on the add review button
 	 * @var string
 	 */
 	public $createLabel = "Add Review";
-	
+
 	/**
 	 * The label that should appear on the update review
 	 * @var string
 	 */
 	public $updateLabel = "Edit Review";
-	
+
 	/**
 	 * The template to use when displaying the review button and summary.
 	 * The following tokens are recognised:
@@ -36,7 +36,7 @@
 	 * @var array
 	 */
 	public $htmlOptions = array("class" => "review button");
-	
+
 	/**
 	 * Displays the review button and reviews summary.
 	 */
@@ -67,10 +67,10 @@
 		$htmlOptions = $this->htmlOptions;
 		$htmlOptions['id'] = $this->getId();
 		if (is_object($this->model->userReview)) {
-			return CHtml::link(Yii::t("packages.reviews", "Edit Review"), array("/reviews/review/update", "ownerModel" => $this->model->asa("reviewable")->getClassName(), "ownerId" => $this->model->asa("reviewable")->getId(), "id" => $this->model->userReview->id),$htmlOptions);
+			return CHtml::link(Yii::t("packages.reviews", "Edit Review"), array("/reviews/review/update", "ownerModel" => $this->model->asa("AReviewable")->getClassName(), "ownerId" => $this->model->asa("AReviewable")->getId(), "id" => $this->model->userReview->id),$htmlOptions);
 		}
 		else {
-			return CHtml::link(Yii::t("packages.reviews","Add Review"), array("/reviews/review/create", "ownerModel" => $this->model->asa("reviewable")->getClassName(), "ownerId" => $this->model->asa("reviewable")->getId()),$htmlOptions);
+			return CHtml::link(Yii::t("packages.reviews","Add Review"), array("/reviews/review/create", "ownerModel" => $this->model->asa("AReviewable")->getClassName(), "ownerId" => $this->model->asa("AReviewable")->getId()),$htmlOptions);
 		}
 	}
 	/**
@@ -82,7 +82,7 @@
 		if ($totalReviews) {
 			$summary = Yii::t("packages.reviews","Rated {rating} out of 10 by {people}", array(
 					"{rating}" => round($this->model->averageRating,2),
-					"{people}" => Yii::t("packages.reviews","n==1#one person|n>1#{n} people",$totalReviews))); 
+					"{people}" => Yii::t("packages.reviews","n==1#one person|n>1#{n} people",$totalReviews)));
 		}
 		else {
 			$summary = Yii::t("packages.reviews", "No reviews yet");
