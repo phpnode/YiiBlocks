@@ -1,7 +1,7 @@
 <?php
 /**
  * Provides access to items that can be moderated.
- * 
+ *
  * @property string $ownerModel the model class that this moderation belongs to
  * @property integer $ownerId the id of the owner model
  * @property integer $moderatorId the id of the moderating user if the vote is not "pending"
@@ -9,8 +9,8 @@
  * @property string $notes The notes added to the moderation item after moderating
  * @property integer $timeAdded the time this moderation item was added
  * @property integer $timeModerated the time this item was moderated
- * 
- * 
+ *
+ *
  * @author Charles Pick
  * @package packages.moderation
  */
@@ -25,7 +25,7 @@ class AModerationItem extends CActiveRecord {
 	 * @var string
 	 */
 	public $status = IAModeratable::PENDING;
-	
+
 	/**
 	 * The moderation statuses
 	 * @var array
@@ -35,7 +35,7 @@ class AModerationItem extends CActiveRecord {
 			IAModeratable::APPROVED => "Approved",
 			IAModeratable::DENIED => "Denied"
 		);
-	
+
 	/**
 	 * Returns the behaviors attached to this model,
 	 * @see CActiveRecord::behaviors();
@@ -43,7 +43,7 @@ class AModerationItem extends CActiveRecord {
 	 */
 	public function behaviors() {
 		return array(
-				
+
 				"linkable" => array(
 					"class" => "packages.linkable.ALinkable",
 					"controllerRoute" => "/moderator/moderation"
@@ -71,7 +71,7 @@ class AModerationItem extends CActiveRecord {
 	}
 
 	/**
-	 * Returns the validation rules for attributes. 
+	 * Returns the validation rules for attributes.
 	 * @see CModel::rules()
 	 * @return array validation rules for model attributes.
 	 */
@@ -108,7 +108,7 @@ class AModerationItem extends CActiveRecord {
 	public function attributeLabels()
 	{
 		return array(
-			
+
 		);
 	}
 	/**
@@ -123,7 +123,7 @@ class AModerationItem extends CActiveRecord {
 		}
 		return $listData;
 	}
-	
+
 	/**
 	 * Gets the model that owns this moderation item.
 	 * @return CActiveRecord the moderated item
@@ -135,7 +135,7 @@ class AModerationItem extends CActiveRecord {
 		}
 		return $this->_owner;
 	}
-	
+
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
@@ -174,7 +174,7 @@ class AModerationItem extends CActiveRecord {
 		if ($this->status != IAModeratable::PENDING) {
 			$this->timeModerated = $time;
 		}
-		
+
 		return parent::beforeSave();
 	}
 	/**
@@ -209,9 +209,9 @@ class AModerationItem extends CActiveRecord {
 		$criteria->condition = "ownerModel = :moderationOwnerModel AND ownerId = :moderationOwnerId";
 		$criteria->params[":moderationOwnerModel"] = $owner->getClassName();
 		$criteria->params[":moderationOwnerId"] = $owner->getId();
-		
+
 		$this->getDbCriteria()->mergeWith($criteria);
 		return $this;
 	}
-	
+
 }

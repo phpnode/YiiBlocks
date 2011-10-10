@@ -1,7 +1,7 @@
 <?php
 /**
  * An interface for creating new packages
- * @uses APackage $model The package to create
+ * @var APackage $model The package to create
  */
 ?>
 <article class='width_3'>

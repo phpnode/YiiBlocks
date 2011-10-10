@@ -45,7 +45,11 @@ class AElasticSearchDocument extends CModel implements IteratorAggregate,ArrayAc
 	 * @var integer
 	 */
 	protected $_version;
-
+	/**
+	 * Whether this document is new or not
+	 * @var boolean
+	 */
+	protected $_new;
 	/**
 	 * Gets a list of attribute names on the model
 	 * @return array the list of attribute names
@@ -82,12 +86,14 @@ class AElasticSearchDocument extends CModel implements IteratorAggregate,ArrayAc
 	}
 	/**
 	 * Constructor.
-	 * @param array $data the intial data. Default is null, meaning no initialization.
-	 * See {@link CModel::scenario} on how scenario is used by models.
-	 * @see getScenario
+	 * @param string $scenario The scenario for this model
+	 * @param array $data the initial data. .
 	 */
-	public function __construct($data = null)
+	public function __construct($scenario = "insert", $data = null)
 	{
+		if (!is_string($scenario)) {
+			throw new Exception("TEST");
+		}
 		$this->_attributes = new CAttributeCollection();
 		$this->_attributes->caseSensitive = false;
 		if (count($data)) {
@@ -95,10 +101,14 @@ class AElasticSearchDocument extends CModel implements IteratorAggregate,ArrayAc
 				$this->add($attribute,$value);
 			}
 		}
-
+		$this->setScenario($scenario);
 		$this->init();
 		$this->attachBehaviors($this->behaviors());
 		$this->afterConstruct();
+
+
+
+
 	}
 	/**
 	 * Returns a property value or an event handler list by property or event name.
@@ -160,6 +170,29 @@ class AElasticSearchDocument extends CModel implements IteratorAggregate,ArrayAc
 	{
 		$this->_attributes->remove($name);
 	}
+
+	/**
+	 * Returns if the current record is new.
+	 * @return boolean whether the record is new and should be inserted when calling {@link save}.
+	 * This property is automatically set in constructor and {@link populateRecord}.
+	 * Defaults to false, but it will be set to true if the instance is created using
+	 * the new operator.
+	 */
+	public function getIsNewRecord()
+	{
+		return $this->_new;
+	}
+
+	/**
+	 * Sets if the record is new.
+	 * @param boolean $value whether the record is new and should be inserted when calling {@link save}.
+	 * @see getIsNewRecord
+	 */
+	public function setIsNewRecord($value)
+	{
+		$this->_new=$value;
+	}
+
 	/**
 	 * Initializes this model.
 	 * This method is invoked in the constructor right after {@link scenario} is set.
@@ -181,13 +214,13 @@ class AElasticSearchDocument extends CModel implements IteratorAggregate,ArrayAc
 	public function add($key,$value) {
 		if (is_array($value) && count($value)) {
 			if (is_string(array_shift(array_keys($value)))) {
-				$value = new AElasticSearchDocument($value);
+				$value = new AElasticSearchDocument("create", $value);
 
 			}
 			else if (is_array(array_shift(array_values($value)))) {
 				foreach($value as $i => $item) {
 					if (is_array($item)) {
-						$value[$i] = new AElasticSearchDocument($item);
+						$value[$i] = new AElasticSearchDocument("create",$item);
 						$value[$i]->setName($i);
 						$value[$i]->setParent($this);
 					}
@@ -251,8 +284,7 @@ class AElasticSearchDocument extends CModel implements IteratorAggregate,ArrayAc
 	 * Sets the unique id for this document
 	 * @param mixed $id the document id
 	 */
-	public function setId($id)
-	{
+	public function setId($id) {
 		$this->_id = $id;
 	}
 
@@ -260,8 +292,7 @@ class AElasticSearchDocument extends CModel implements IteratorAggregate,ArrayAc
 	 * Gets the unique id for this document
 	 * @return mixed the document id
 	 */
-	public function getId()
-	{
+	public function getId() {
 		return $this->_id;
 	}
 

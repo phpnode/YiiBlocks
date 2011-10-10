@@ -8,7 +8,7 @@
  * $response->anotherField = "Something Else";
  * $response->render(); // sends the headers and renders the JSON
  * </pre>
- * 
+ *
  * JSONP is also supported, e.g.
  * <pre>
  * $response = new AJSONResponse();
@@ -35,7 +35,7 @@ class AJSONResponse extends AServiceResponse {
 	 * @var string
 	 */
 	protected $_callback = "callback";
-	
+
 	/**
 	 * Gets whether to use JSONP or not, defaults to false.
 	 * @return boolean whether to use JSONP or not.
@@ -58,7 +58,7 @@ class AJSONResponse extends AServiceResponse {
 	public function getCallback() {
 		return $this->_callback;
 	}
-	
+
 	/**
 	 * Sets the name of the callback function to use when _JSONP is true.
 	 * Defaults to "callback".
@@ -67,8 +67,8 @@ class AJSONResponse extends AServiceResponse {
 	public function setCallback($value) {
 		return $this->_callback = $value;
 	}
-	
-	
+
+
 	/**
 	 * Renders the appropriate JSON output
 	 * @param boolean $sendHeaders Whether to send headers or not, defaults to true.
@@ -91,7 +91,7 @@ class AJSONResponse extends AServiceResponse {
 		}
 		echo $result;
 	}
-	
+
 	/**
 	 * Sends the JSON headers
 	 */

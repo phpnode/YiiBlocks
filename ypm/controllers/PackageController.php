@@ -4,7 +4,7 @@
  * @author Charles Pick
  * @package packages.ypm.controllers
  */
-class PackageController extends Controller {
+class PackageController extends ABaseAdminController {
 	/**
 	 * Declares class based actions
 	 * @return array The class based actions to use for this controller
@@ -24,19 +24,19 @@ class PackageController extends Controller {
 	 * Creates a new package
 	 */
 	public function actionCreate() {
-		
+
 		$model = new APackage("create");
 		$this->performAjaxValidation($model);
 		if (isset($_POST['APackage'])) {
 			$model->attributes = $_POST['APackage'];
 			if ($model->save()) {
 				Yii::app()->user->setFlash("success",Yii::t("packages.ypm","<h2>Package Created</h2><p>Your new package was created successfully.</p>"));
-				$this->redirect(array("/ypm/package/edit","name" => $model->name));
+				$this->redirect(array("edit","name" => $model->name));
 			}
 		}
 		$this->render("create",array("model" => $model));
 	}
-	
+
 	/**
 	 * Edits an installed package.
 	 * Called edit rather than update to avoid confusion with updating packages.
@@ -57,26 +57,22 @@ class PackageController extends Controller {
 		}
 		$this->render("edit",array("model" => $model));
 	}
-	
+
 	/**
 	 * Shows a list of available packages in JSON format
-	 * 
+	 *
 	 */
 	public function actionList() {
 		$response = new AJSONResponse();
-		
+
 		$response->packages = new CAttributeCollection();
 		foreach(Yii::app()->packageManager->packages as $package) {
-			if (!$package->isPublished) {
-				continue;
-			}
 			$response->packages[$package->name] = $package;
 		}
-		
+		$response->packages = $response->packages->toArray();
 		$response->render();
-		Yii::app()->packageManager->install("testItem1");
 	}
-	
+
 	/**
 	 * Performs the AJAX validation.
 	 * @param CModel $model the model to be validated

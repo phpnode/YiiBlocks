@@ -1,8 +1,8 @@
 <?php
 /**
  * The administration view for the {@link Comment} model
- * @uses Comment $model The Comment model used for searching
- */ 
+ * @var Comment $model The Comment model used for searching
+ */
 $this->breadcrumbs=array(
     'Comments'=>array('index'),
     'Manage',
@@ -41,13 +41,13 @@ $this->menu=array(
 						nl2br(CHtml::encode($data->content)).
 						"</p>".
 						"<div class=\'adminLinks\'>".
-						($data->isApproved ? 
+						($data->isApproved ?
 							CHtml::link("Approved","#",array("class" => "icon approved"))
 							:
 							CHtml::link("Pending Approval","#",array("class" => "icon pending"))
 						).
 						" | ".
-						($data->isSpam ? 
+						($data->isSpam ?
 							CHtml::link("Marked as Spam","#",array("class" => "icon spam"))
 							:
 							CHtml::link("Not Spam","#",array("class" => "icon notspam"))

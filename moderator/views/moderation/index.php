@@ -1,8 +1,8 @@
 <?php
 /**
  * The administration view for the {@link Webapp} model
- * @uses Webapp $model The Webapp model used for searching
- */ 
+ * @var Webapp $model The Webapp model used for searching
+ */
 $this->breadcrumbs=array(
 	'Moderation'=>array('/moderator'),
 	'Manage',
@@ -44,7 +44,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	'columns'=>array(
 		array(
 			'name' => 'ownerModel',
-			'filter' => AModerationItem::listOwnerModels(),	
+			'filter' => AModerationItem::listOwnerModels(),
 		),
 		array(
 			'name' => 'ownerId',
@@ -56,7 +56,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 			'filter' => AModerationItem::$statuses,
 		),
 		'timeAdded:datetime',
-		
+
 	),
 ));
 

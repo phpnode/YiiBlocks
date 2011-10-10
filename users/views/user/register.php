@@ -1,7 +1,7 @@
 <?php
 /**
  * The user registration form
- * @uses AUser $model the user model
+ * @var AUser $model the user model
  */
 $this->pageTitle = "Signup Now";
 ?>
@@ -34,7 +34,7 @@ $this->pageTitle = "Signup Now";
 		<div class="row buttons">
 			<?php echo CHtml::submitButton("Signup",array("class" => "signup button")); ?>
 		</div>
-		
+
 		<?php
 		$this->endWidget();
 		?>

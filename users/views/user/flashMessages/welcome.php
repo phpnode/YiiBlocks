@@ -1,7 +1,7 @@
 <?php
 /*
  * A welcome flash message for users who've just registered
- * @uses AUser $user the user who registered
+ * @var AUser $user the user who registered
  */
 ?>
 <h3>Thanks for joining</h3>

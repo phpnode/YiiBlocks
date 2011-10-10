@@ -1,7 +1,7 @@
 <?php
 /**
  * Shows a summary of this parameter
- * @uses AParameterDoc $parameter The parameter to summarize
+ * @var AParameterDoc $parameter The parameter to summarize
  */
 ?>
 <tr>
@@ -12,7 +12,7 @@
 	}
 	else {
 		echo $parameter->function->typeLink($parameter->type);
-	}	
+	}
 	?></td>
 	<td><?php echo $parameter->description; ?></td>
 </tr>

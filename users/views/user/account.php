@@ -1,7 +1,7 @@
 <?php
 /**
  * Shows the user's account page
- * @uses AUser $model The user model
+ * @var AUser $model The user model
  */
 $this->layout = "//layouts/column2";
 $this->menu = array(
@@ -12,7 +12,7 @@ $this->menu = array(
 );
 ?>
 <article class='user'>
-	
+
 	<?php
 	$this->widget("packages.users.portlets.AUserImagePortlet",array(
 		"user" => $model,

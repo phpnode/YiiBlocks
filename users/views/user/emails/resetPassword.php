@@ -1,8 +1,8 @@
 <?php
 /**
  * An email message that contains a link to reset the user's password
- * @uses AEmail $this The email being sent
- * @uses AUser $user The user being emailed
+ * @var AEmail $this The email being sent
+ * @var AUser $user The user being emailed
  */
 
  $this->subject = "Please reset your password";
@@ -15,4 +15,4 @@ echo CHtml::link($url,$url);
 ?></p>
 <p>If you received this message in error, please disregard it.</p>
 <p>Thanks,<br />The <?php echo Yii::app()->name; ?> Team</p>
- 
+

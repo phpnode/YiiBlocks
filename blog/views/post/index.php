@@ -1,7 +1,7 @@
 <?php
 /**
  * The index view for the {@link ABlogPost} model
- * @uses CActiveDataProvider $dataProvider The data provider for the models
+ * @var CActiveDataProvider $dataProvider The data provider for the models
  */
 $this->breadcrumbs=array(
 	'Blog Posts'

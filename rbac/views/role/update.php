@@ -1,7 +1,7 @@
 <?php
 /**
  * A view used to update {@link AAuthRole} models
- * @uses AAuthRole $model The AAuthRole model to be updated
+ * @var AAuthRole $model The AAuthRole model to be updated
  */
 
 $this->breadcrumbs=array(

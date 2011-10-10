@@ -1,13 +1,13 @@
 <?php
 /**
  * A form for creating new packages
- * @uses APackage $model The package to create
+ * @var APackage $model The package to create
  */
 ?>
 
 <h1>Edit Package: <?php echo CHtml::encode($model->name); ?></h1>
 <p>
-	Fill out the form to begin creating a package that can be published with Yii Package Manager.	
+	Fill out the form to begin creating a package that can be published with Yii Package Manager.
 </p>
 <div class='form wide'>
 	<?php

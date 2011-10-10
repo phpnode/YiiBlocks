@@ -1,7 +1,7 @@
 <?php
 /**
  * A view used to create new {@link AAuthRole} models
- * @uses AAuthRole $model The AAuthRole model to be inserted
+ * @var AAuthRole $model The AAuthRole model to be inserted
  */
 
 $this->breadcrumbs=array(

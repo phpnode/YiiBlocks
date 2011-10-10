@@ -1,7 +1,7 @@
 <?php
 /**
  * A 2 column view that will be rendered within the main admin layout
- * @uses string $content The content to render within this view
+ * @var string $content The content to render within this view
  */
 ?>
 <?php $this->beginContent('packages.admin.views.layouts.main'); ?>

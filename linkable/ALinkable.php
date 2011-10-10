@@ -53,10 +53,16 @@ class ALinkable extends CBehavior implements IALinkable {
 	public $template = "{id}";
 
 	/**
+	 * The default htmlOptions for links of this type
+	 * @var array
+	 */
+	public $defaultHtmlOptions = array();
+
+	/**
 	 * Creates a URL for this model
 	 * @param string $action The action to link to, if not specified the value of $this->defaultAction is used
 	 * @param array $params The parameters to include in the URL, if null the value of $this->attributes will be used
-	 * @param boolean $absolute Whether to create an absolute URL or not, defaults to false
+	 * @param boolean|string $absolute Whether to create an absolute URL or not, defaults to false. If this is a string it will be used as the schema
 	 * @return string The URL for this model
 	 */
 	public function createUrl($action = null, $params = null, $absolute = false) {
@@ -89,35 +95,41 @@ class ALinkable extends CBehavior implements IALinkable {
 				$attributes = array($attributes);
 			}
 			foreach($attributes as $attribute) {
-				if (!isset($params[$attribute]) || $params[$attribute] !== false) {
+				if (isset($params[$attribute]) && $params[$attribute] === false) {
+					$params[$attribute] = $this->owner->{$attribute};
+				}
+				elseif (!isset($params[$attribute])) {
 					$params[$attribute] = $this->owner->{$attribute};
 				}
 			}
 		}
-		$route = $this->controllerRoute;
-		if ($route === null) {
-			$route = "/".lcfirst(get_class($this->owner));
-		}
-		if (substr($route,-1,1) != "/") {
-			$route .= "/";
-		}
-		$route .= $action;
-		if (isset(Yii::app()->controller)) {
-			if ($absolute) {
-				return Yii::app()->controller->createAbsoluteUrl($route, $params);
+		if (substr($action,0,1) != "/") {
+			$route = $this->controllerRoute;
+			if ($route === null) {
+				$route = "/".lcfirst(get_class($this->owner));
 			}
-			else {
-				return Yii::app()->controller->createUrl($route, $params);
+			if (substr($route,-1,1) != "/") {
+				$route .= "/";
 			}
+			$route .= $action;
 		}
 		else {
-			if ($absolute) {
-				return Yii::app()->createAbsoluteUrl($route, $params);
+			$route = $action;
+		}
+
+		if ($absolute) {
+			if (is_string($absolute)) {
+				$schema = $absolute;
 			}
 			else {
-				return Yii::app()->createUrl($route, $params);
+				$schema = "";
 			}
+			return Yii::app()->createAbsoluteUrl($route, $params,$schema);
 		}
+		else {
+			return Yii::app()->createUrl($route, $params);
+		}
+
 	}
 
 	/**
@@ -125,9 +137,10 @@ class ALinkable extends CBehavior implements IALinkable {
 	 * @param string $anchorText The anchor text to use for this link, defaults to null meaning use the value of $this->template as a template
 	 * @param array $params A string refering to the action or an array of route parameters, see {@link CHtml::normalizeUrl}
 	 * @param array $htmlOptions The htmlOptions, see {@link CHtml::link()}
+	 * @param boolean|string $absolute Whether to create an absolute URL or not, defaults to false. If this is a string it will be used as the schema
 	 * @return string The link to the model
 	 */
-	public function createLink($anchorText = null, $params = null, $htmlOptions = array()) {
+	public function createLink($anchorText = null, $params = null, $htmlOptions = array(), $absolute = false) {
 		if (is_array($params) && isset($params[0])) {
 			$action = $params[0];
 			unset($params[0]);
@@ -155,7 +168,7 @@ class ALinkable extends CBehavior implements IALinkable {
 			}
 
 		}
-		return CHtml::link($anchorText,$this->createUrl($action,$params),$htmlOptions);
+		return CHtml::link($anchorText,$this->createUrl($action,$params),$htmlOptions,$absolute);
 	}
 
 }

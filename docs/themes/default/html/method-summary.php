@@ -1,7 +1,7 @@
 <?php
 /**
  * Shows a summary of this method
- * @uses AClassMethodDoc $method The method to summarize
+ * @var AClassMethodDoc $method The method to summarize
  */
 ?>
 <tr>

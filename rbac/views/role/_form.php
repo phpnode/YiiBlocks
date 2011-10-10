@@ -1,7 +1,7 @@
 <?php
 /**
  * The input form for the {@link AAuthRole} model
- * @uses AAuthRole $model The AAuthRole model
+ * @var AAuthRole $model The AAuthRole model
  */
 ?>
 <div class="form wide">

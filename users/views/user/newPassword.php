@@ -1,7 +1,7 @@
 <?php
 /**
  * Allows the user to enter a new password
- * @uses AUser $model the model to change the password for
+ * @var AUser $model the model to change the password for
  */
 $this->pageTitle = "Enter A New Password";
 ?>
@@ -22,7 +22,7 @@ $this->pageTitle = "Enter A New Password";
 	<div class="row buttons">
 		<?php echo CHtml::submitButton("Save",array("class" => "save button")); ?>
 	</div>
-	
+
 	<?php
 	$this->endWidget();
 	?>

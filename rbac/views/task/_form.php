@@ -1,7 +1,7 @@
 <?php
 /**
  * The input form for the {@link AAuthTask} model
- * @uses AAuthTask $model The AAuthTask model
+ * @var AAuthTask $model The AAuthTask model
  */
 ?>
 <div class="form">

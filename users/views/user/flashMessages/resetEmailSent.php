@@ -1,7 +1,7 @@
 <?php
 /*
  * A flash message shown when a password reset email has been sent
- * @uses AUser $user the user who was emailed
+ * @var AUser $user the user who was emailed
  */
 ?>
 <h3>Please check your email</h3>

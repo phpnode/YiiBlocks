@@ -1,7 +1,7 @@
 <?php
 /**
  * The input form for the {@link AAuthOperation} model
- * @uses AAuthOperation $model The AAuthOperation model
+ * @var AAuthOperation $model The AAuthOperation model
  */
 $lookupUrl = json_encode($this->createUrl("findRoute"));
 $script = <<<JS

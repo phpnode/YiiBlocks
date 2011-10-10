@@ -1,7 +1,7 @@
 <?php
 /**
  * Shows a summary of this class
- * @uses AClassDoc $class The class to summarize
+ * @var AClassDoc $class The class to summarize
  */
 ?>
 <tr>

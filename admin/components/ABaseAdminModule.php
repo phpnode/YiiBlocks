@@ -34,4 +34,26 @@ abstract class ABaseAdminModule extends CWebModule {
 		}
 		return $menuItems;
 	}
+
+	/**
+	 * Sets the database connection to use for this module
+	 * @param CDbConnection $db the database connection to use
+	 */
+	public function setDb($db)
+	{
+		$this->setComponent("db",$db);
+	}
+
+	/**
+	 * Gets the database connection to use for this module
+	 * If none is specified, the application default will be used
+	 * @return CDbConnection
+	 */
+	public function getDb()
+	{
+		if (($db = $this->getComponent("db")) === null) {
+			$db = Yii::app()->db;
+		}
+		return $db;
+	}
 }

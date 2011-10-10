@@ -1,10 +1,10 @@
 <?php
 /**
  * Shows the details for a property
- * @uses AClassPropertyDoc $property The property to show details for
+ * @var AClassPropertyDoc $property The property to show details for
  */
 ?>
-<h3 id="<?php echo $property->name; ?>-property"><?php echo $property->name; ?></h3> 
+<h3 id="<?php echo $property->name; ?>-property"><?php echo $property->name; ?></h3>
 property <?php
 if ($property->since !== null) {
 	echo "(Available since v".$property->since.")";

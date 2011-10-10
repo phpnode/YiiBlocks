@@ -1,7 +1,7 @@
 <?php
 /**
  * The search form for the {@link AModerationItem} model
- * @uses AModerationItem $model The moderation item model
+ * @var AModerationItem $model The moderation item model
  */
 ?>
 <div class="wide form">

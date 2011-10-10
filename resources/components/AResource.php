@@ -2,7 +2,7 @@
 /**
  * Holds information about a resource file.
  * Resources are files that can be attached to models.
- * 
+ *
  * @property integer $id the id of the resource
  * @property string $ownerModel the name of the model this resource belongs to
  * @property integer $ownerId the id of the owner model
@@ -14,18 +14,18 @@
  * @property integer $size the size of the resource in bytes
  * @property integer $userId the id of the user who uploaded this resource
  * @property integer $timeAdded the time the resource was added
- * 
+ *
  * @package packages.resources
  * @author Charles Pick
  */
 class AResource extends CActiveRecord {
-	
+
 	/**
 	 * Holds the uploaded file
 	 * @var CUploadedFile
 	 */
 	protected $_uploadedFile;
-	
+
 	/**
 	 * The file content.
 	 * @see getContent()
@@ -49,7 +49,7 @@ class AResource extends CActiveRecord {
 	public function tableName() {
 		return "resources";
 	}
-	
+
 	/**
 	 * Gets the full path to the resource file
 	 * @return string the path to the resource file
@@ -57,7 +57,7 @@ class AResource extends CActiveRecord {
 	public function getFullPath() {
 		return Yii::app()->getModule("resources")->resourceDir."/".$this->path;
 	}
-	
+
 	/**
 	 * Gets the content of the resource
 	 * @return string the file contents
@@ -89,7 +89,7 @@ class AResource extends CActiveRecord {
 		}
 		return $this->_content = $content;
 	}
-	
+
 	/**
 	 * Triggered before the resource is saved
 	 * @see CActiveRecord::beforeSave()
@@ -144,7 +144,7 @@ class AResource extends CActiveRecord {
 	public static function fromUploadedFile(CUploadedFile $file) {
 		$resource = new AResource;
 		$resource->content = $file;
-		
+
 		return $resource;
 	}
 }

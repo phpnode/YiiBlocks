@@ -6,27 +6,41 @@
  * @package packages.ypm.models
  */
 class APackage extends CFormModel {
-	
-	
+	/**
+	 * Constructor.
+	 * @param string $scenario name of the scenario that this model is used in.
+	 * See {@link CModel::scenario} on how scenario is used by models.
+	 * @see getScenario
+	 */
+	public function __construct($scenario='create')
+	{
+		parent::__construct($scenario);
+	}
 	/**
 	 * The unique name of the package.
 	 * @var string
 	 */
 	public $name;
-	
+
 	/**
 	 * A short description of this package
 	 * @var string
 	 */
 	public $description;
-	
+
 	/**
-	 * The version of this package.
+	 * The name of the repository this package belongs to
+	 * @var string
+	 */
+	public $repositoryName = "local";
+
+	/**
+	 * The current version of this package.
 	 * Defaults to 1.
 	 * @var mixed
 	 */
 	public $version = 1;
-	
+
 	/**
 	 * An array of files that make up this package.
 	 * A full path to the file should be specified, but the file must be located
@@ -37,7 +51,7 @@ class APackage extends CFormModel {
 	 *  "/var/www/testdrive/protected/testpackage/components/TestBehavior.php",
 	 * )
 	 * </pre>
-	 * @var array 
+	 * @var array
 	 */
 	public $files = array();
 	/**
@@ -45,15 +59,14 @@ class APackage extends CFormModel {
 	 * @var array
 	 */
 	public $dependencies = array();
-	
-	
-	
 	/**
-	 * Holds the package repository that this package belongs to.
-	 * @var APackageRepository
+	 * The path to the directory for this package
+	 * @var string
 	 */
-	protected $_repository;
-	
+	protected $_baseDir;
+
+
+
 	/**
 	 * The validation rules for packages
 	 * @see CModel::rules()
@@ -61,16 +74,16 @@ class APackage extends CFormModel {
 	 */
 	public function rules() {
 		return array(
-			array("name","required","on" => "create"),
-			array("description","required", "on" => "create,edit"),
-			array("name", "length", "max" => 50, "on" => "create"),
-			array("description", "length", "max" => 1000, "on" => "create,edit"),
-			array('name', 'match', 'pattern'=>'/^([a-z0-9-])+$/', "on" => "create"),
-			array('name','checkUnique','on' => 'create'),
+			array("name","required",),
+			array("description","required"),
+			array("name", "length", "max" => 50,),
+			array("description", "length", "max" => 1000),
+			array('name', 'match', 'pattern'=>'/^([a-zA-Z0-9-])+$/'),
+			array('name','checkUnique',"on" => "create"),
 			array("files", "safe", "on" => "edit"),
 		);
 	}
-	
+
 	/**
 	 * Checks that the package name is unique
 	 * @return boolean true if the name is unique
@@ -79,7 +92,7 @@ class APackage extends CFormModel {
 		if ($this->hasErrors("name")) {
 			return false;
 		}
-		$package = Yii::app()->packageManager->find($this->name);
+		$package = $this->getManager()->find($this->name);
 		if ($package === false) {
 			return true;
 		}
@@ -96,7 +109,7 @@ class APackage extends CFormModel {
 			"name" => "Package Name"
 		);
 	}
-	
+
 	/**
 	 * Add our custom validation checks
 	 * @see CModel::beforeValidate()
@@ -104,40 +117,30 @@ class APackage extends CFormModel {
 	public function beforeValidate() {
 		return parent::beforeValidate();
 	}
-	
+
 	/**
 	 * Determines whether this package is installed or not.
 	 * @return boolean true if the package is installed
 	 */
 	public function getIsInstalled() {
-		return isset(Yii::app()->packageManager->packages->{$this->name});
-	}	
+		return isset($this->getManager()->getPackages()->{$this->name});
+	}
 	/**
 	 * Gets the package repository that this package belongs to
 	 * @return APackageRepository the repo for this package
 	 */
 	public function getRepository() {
-		return $this->_repository;
+		return $this->getManager()->getRepositories()->itemAt($this->repositoryName);
 	}
-	
 	/**
-	 * Sets the package repository that this package belongs to
-	 * @param mixed $repo The repository, either an instance of APackageRepository or a configuration array
+	 * Gets the package manager
+	 * @return APackageManager the package manager
 	 */
-	public function setRepository($repo) {
-		if ($repo instanceof APackageRepository) {
-			$this->_repository = $repo;
-		}
-		else {
-			$this->_repository = new APackageRepository();
-			foreach($repo as $attribute => $value) {
-				$this->_repository->{$attribute} = $value;
-			}
-		}
-		return $this->_repository;
+	public function getManager() {
+		return Yii::app()->packageManager;
 	}
-	
-	
+
+
 	/**
 	 * Installs the package
 	 * @param string $version The version of the package to install
@@ -186,7 +189,7 @@ class APackage extends CFormModel {
 	public function download($version = "stable") {
 		$url = rtrim($this->repository->url,"/")."/".urlencode($this->name)."/versions/".urlencode($version);
 		$this->log("info",Yii::t("packages.ypm","Downloading {url} ...",array("{url}" => $url)));
-		
+
 		return true;
 	}
 	/**
@@ -194,10 +197,10 @@ class APackage extends CFormModel {
 	 * @return APackage[] an array of packages that this package depends on
 	 */
 	public function resolveDependencies() {
-		$packageManager = Yii::app()->packageManager;
+
 		$packages = array();
 		foreach($this->dependencies as $packageName) {
-			$package = Yii::app()->packageManager->find($packageName);
+			$package = $this->getManager()->find($packageName);
 			if ($package === false) {
 				throw new APackageRepositoryException(Yii::t("packages.ypm", "No such package: {name}", array("{name}" => $packageName)));
 			}
@@ -205,38 +208,84 @@ class APackage extends CFormModel {
 		}
 		return $packages;
 	}
-	
+
 	/**
 	 * Uninstalls the package
 	 * @return boolean whether uninstallation succeeded or not
 	 */
 	public function uninstall() {
-		
+
 	}
-	
+
 	/**
 	 * Upgrades the package
 	 * @return boolean whether the upgrade succeeded or not
 	 */
 	public function upgrade() {
-		
+
 	}
+	/**
+	 * Delete the package and all associated files
+	 * @return boolean whether the package was completely deleted or not
+	 */
+	public function delete() {
+		$dir = $this->getBaseDir();
+		$deleted = true;
+		$filesToDelete = array();
+		$filesToDelete[] = $dir."/package.json";
+		foreach($this->files as $file) {
+			$filesToDelete[] = $dir.$file;
+		}
+		foreach($filesToDelete as $file) {
+			if (file_exists($file)) {
+				$this->log("info","Deleting file: $file");
+				$deleted = @unlink($file) && $deleted;
+			}
+		}
+		$directoriesToDelete = AFileHelper::findDirectories($dir);
+		$directoriesToDelete[] = $dir;
+		$keys = array_map('strlen', $directoriesToDelete);
+		array_multisort($keys, SORT_DESC, $directoriesToDelete);
+
+		foreach($directoriesToDelete as $directory) {
+			$this->log("info","Deleting directory: $directory");
+			$deleted = @rmdir($directory) && $deleted;
+		}
+
+		if ($deleted) {
+			$this->getRepository()->removePackage($this);
+		}
+		return $deleted;
+	}
+
 	/**
 	 * Saves the package JSON to packages/PACKAGENAME/package.json
 	 * @param boolean $runValidation Whether to run validation or not, defaults to true.
 	 * @return boolean Whether save succeeded or not
 	 */
 	public function save($runValidation = true) {
+
 		if ($runValidation && !$this->validate()) {
 			return false;
 		}
-		$packageDir = Yii::getPathOfAlias("packages")."/".$this->name."/";
-		$packageFile = $packageDir."package.json";
+		$packageDir = $this->getBaseDir();
+		$packageFile = $packageDir."/package.json";
 		if (!file_exists($packageDir)) {
 			mkdir($packageDir);
 		}
-		return file_put_contents($packageFile, $this->toJSON()) ? true : false;
-		
+		if (function_exists("json_encode")) {
+			$json = json_encode($this->toJSON());
+		}
+		else {
+			$json = CJSON::encode($this->toJSON());
+		}
+
+		if (!file_put_contents($packageFile, $json)) {
+			return false;
+		}
+
+		return true;
+
 	}
 	/**
 	 * Adds a message with the given level to the log.
@@ -249,49 +298,119 @@ class APackage extends CFormModel {
 		#echo "</pre>\n";
 	}
 	/**
-	 * Gets a JSON representation of this package.
-	 * @return string The JSON for this package
+	 * Gets the attributes to include when converting this item to JSON
+	 * This does not return a JSON string, but an array of attributes that should be converted to JSON
+	 * @return array The attributes to encode with JSON
 	 */
 	public function toJSON() {
-		$json = array(
+		return array(
 			"name" => $this->name,
 			"description" => $this->description,
 			"dependencies" => $this->dependencies,
-			"files" => $this->files
+			"files" => $this->files,
+			"repositoryName" => $this->repositoryName,
 		);
-		if (function_exists("json_encode")) {
-			return json_encode($json);
-		}
-		else {
-			return CJSON::encode($json);
-		}
+
 	}
-	
+
 	/**
 	 * Loads a package based on the given name.
+	 * @return APackage|false the loaded package or false if the package doesn't exist
 	 */
 	public static function load($name) {
-		$packageDir = Yii::getPathOfAlias("packages")."/".$name."/";
-		if (!file_exists($packageDir."package.json")) {
+		$package = new APackage("edit");
+		$package->name = $name;
+		$packageDir = $package->getBaseDir();
+		if (!file_exists($packageDir."/package.json")) {
 			return false;
 		}
 		else {
-			$json = file_get_contents($packageDir."package.json");
+			$json = file_get_contents($packageDir."/package.json");
 			if (function_exists("json_decode")) {
 				$json = json_decode($json);
 			}
 			else {
 				$json = CJSON::decode($json);
 			}
-			
 			if (!$json) {
 				return false;
 			}
-			$package = new APackage("edit");
 			foreach($json as $attribute => $value) {
 				$package->{$attribute} = $value;
 			}
 			return $package;
 		}
 	}
+
+	/**
+	 * Sets the directory that this package is installed in
+	 * @param string $directory
+	 */
+	public function setBaseDir($directory)
+	{
+		$this->_baseDir = rtrim($directory,"\\/");
+	}
+
+	/**
+	 * Gets the directory that this package is installed in
+	 * @return string
+	 */
+	public function getBaseDir()
+	{
+		if ($this->_baseDir === null) {
+			$this->_baseDir = Yii::getPathOfAlias("packages")."/".$this->name;
+		}
+		return $this->_baseDir;
+	}
+	/**
+	 * Imports an entire directory into the package
+	 * @param string $path the path to the directory to import
+	 * @param null $targetSubDir
+	 * @return APackage $this with the directories imported
+	 */
+	public function importDirectory($path, $targetSubDir = null) {
+		$dir = $this->getBaseDir();
+		if ($targetSubDir !== null) {
+			$targetSubDir = "/".trim($targetSubDir,"/\\");
+			$dir .= $targetSubDir;
+		}
+		if (!file_exists($dir)) {
+			mkdir($dir,0777, true);
+		}
+		CFileHelper::copyDirectory($path,$dir);
+		foreach(CFileHelper::findFiles($path) as $file) {
+			$file = substr($file,strlen($path));
+			if (!in_array($file,$this->files)) {
+				$this->files[] = $targetSubDir.$file;
+			}
+		}
+		return $this;
+	}
+
+	/**
+	 * Imports a file
+	 * @param string $path the path to the file to import
+	 * @param string|null $targetSubDir the sub directory in the package to import the file into, if null the package base dir will be used
+	 * @return APackage $this with the directories imported
+	 */
+	public function importFile($path, $targetSubDir = null) {
+		$dir = $this->getBaseDir();
+		if ($targetSubDir !== null) {
+			$targetSubDir = "/".trim($targetSubDir,"/\\");
+			$dir .= $targetSubDir;
+		}
+		if (!file_exists($dir)) {
+			mkdir($dir,0777, true);
+		}
+		$file = substr($path,strlen(dirname($path)));
+		copy($path,$dir.$file);
+
+
+		if (!in_array($file,$this->files)) {
+			$this->files[] = $targetSubDir.$file;
+		}
+		return $this;
+	}
+
+
 }

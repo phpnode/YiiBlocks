@@ -1,7 +1,7 @@
 <?php
 /**
  * The administration view for the {@link BlogPost} model
- * @uses BlogPost $model The BlogPost model used for searching
+ * @var BlogPost $model The BlogPost model used for searching
  */
 $this->breadcrumbs=array(
 	'Blog Posts'=>array('index'),

@@ -1,10 +1,10 @@
 <?php
 /**
  * Shows the details for a method
- * @uses AClassMethodDoc $method The property to show details for
+ * @var AClassMethodDoc $method The property to show details for
  */
 ?>
-<h3 id="<?php echo $method->name; ?>-method"><?php echo $method->name; ?>()</h3> 
+<h3 id="<?php echo $method->name; ?>-method"><?php echo $method->name; ?>()</h3>
 method <?php
 if ($method->since !== null) {
 	echo "(available since v".$method->since.")";
@@ -43,8 +43,8 @@ $("#{$method->name}-source-link").bind("click",function(e){
 });
 JS;
 	echo CHtml::script($script);
-	
-	
+
+
 	?></td>
 </tr>
 </table>

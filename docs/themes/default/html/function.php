@@ -1,7 +1,7 @@
 <?php
 /**
  * Gets html documentation for a function.
- * @uses $function AFunctionDoc the function to document
+ * @var $function AFunctionDoc the function to document
  */
 ?>
 <article>
@@ -70,11 +70,11 @@ $("#{$function->name}-source-link").bind("click",function(e){
 });
 JS;
 	echo CHtml::script($script);
-	
-	
+
+
 	?></td>
 </tr>
-	
+
 </table>
 
 <?php

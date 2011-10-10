@@ -9,13 +9,13 @@
  * @property string $raterUserAgent the user agent of the rater
  * @property integer $score the rating score, 0 to 10
  * @property string $timeAdded the time the rating was added
- * 
+ *
  * @author Charles Pick
  * @package packages.ratings.models
  */
 class ARating extends CActiveRecord implements IARating {
 	/**
-	 * The beforeSave event, sets the rater ip, user agent 
+	 * The beforeSave event, sets the rater ip, user agent
 	 * and user id if possible.
 	 * @see CActiveRecord::beforeSave()
 	 */
@@ -54,7 +54,7 @@ class ARating extends CActiveRecord implements IARating {
 	}
 
 	/**
-	 * Returns the validation rules for attributes. 
+	 * Returns the validation rules for attributes.
 	 * @see CModel::rules()
 	 * @return array validation rules for model attributes.
 	 */
@@ -136,12 +136,12 @@ class ARating extends CActiveRecord implements IARating {
 		$criteria->condition = "ownerModel = :ratingOwnerModel AND ownerId = :ratingOwnerId";
 		$criteria->params[":ratingOwnerModel"] = get_class($owner);
 		$criteria->params[":ratingOwnerId"] = $owner->primaryKey;
-		
+
 		$this->getDbCriteria()->mergeWith($criteria);
 		return $this;
 	}
-	
-	
+
+
 	/**
 	 * Named Scope: Returns all Votes by the current user
 	 * @return Vote $this The vote model with the scope applied.
@@ -157,7 +157,7 @@ class ARating extends CActiveRecord implements IARating {
 			$criteria->params[":raterIP"] = $_SERVER['REMOTE_ADDR'];
 			$criteria->params[":raterUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
 		}
-		
+
 		$this->getDbCriteria()->mergeWith($criteria);
 		return $this;
 	}

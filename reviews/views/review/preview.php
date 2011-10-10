@@ -1,7 +1,7 @@
 <?php
 /**
  * Review Preview, shows a review.
- * @uses AReview $model the review model
+ * @var AReview $model the review model
  */
 ?>
 <article class='width_2 review'>
@@ -43,8 +43,8 @@
 		"downvoteLabel" => "No",
 		"upvotedLabel" => "<strong>Yes</strong>",
 		"downvotedLabel" => "<strong>No</strong>",
-		
+
 	));
-	
+
 	?>
 </article>

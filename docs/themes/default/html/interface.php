@@ -1,7 +1,7 @@
 <?php
 /**
  * Gets html documentation for an interface.
- * @uses $interface AInterfaceDoc the interface to document
+ * @var $interface AInterfaceDoc the interface to document
  */
 ?>
 <article>
@@ -13,8 +13,8 @@
 	<tr>
 		<th>Inheritance</th>
 		<td><?php
-		$inheritance = array("interface ".$interface->name); 
-		
+		$inheritance = array("interface ".$interface->name);
+
 		$parent = $interface->parent;
 		if ($parent === false && $interface->extends != "") {
 			$inheritance[] = $interface->typeLink($interface->extends);
@@ -25,7 +25,7 @@
 				if ($parent->parent === false && $parent->extends != "") {
 					$inheritance[] = $interface->typeLink($parent->extends);
 				}
-				
+
 				$parent = $parent->parent;
 			}
 		}
@@ -43,7 +43,7 @@
 				echo $interface->typeLink($subClass->name)." ";
 			}
 			?></td>
-			
+
 		</tr>
 		<?php
 	}

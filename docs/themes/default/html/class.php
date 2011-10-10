@@ -1,7 +1,7 @@
 <?php
 /**
  * Gets html documentation for a class.
- * @uses $class AClassDoc the class to document
+ * @var $class AClassDoc the class to document
  */
 ?>
 <article>
@@ -13,8 +13,8 @@
 	<tr>
 		<th>Inheritance</th>
 		<td><?php
-		$inheritance = array("class ".$class->name); 
-		
+		$inheritance = array("class ".$class->name);
+
 		$parent = $class->parent;
 		if ($parent === false && $class->extends != "") {
 			$inheritance[] = $class->typeLink($class->extends);
@@ -25,7 +25,7 @@
 				if ($parent->parent === false && $parent->extends != "") {
 					$inheritance[] = $class->typeLink($parent->extends);
 				}
-				
+
 				$parent = $parent->parent;
 			}
 		}
@@ -43,7 +43,7 @@
 				echo $class->typeLink($subClass->name)." ";
 			}
 			?></td>
-			
+
 		</tr>
 		<?php
 	}

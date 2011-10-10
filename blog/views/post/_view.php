@@ -1,9 +1,9 @@
 <?php
 /**
  * A partial view that shows information about a {@link BlogPost} model
- * @uses BlogPost $data The BlogPost model being rendered
- * @uses integer $index the zero-based index of the data item being rendered
- * @uses CListView $widget The CListView widget rendering this view
+ * @var BlogPost $data The BlogPost model being rendered
+ * @var integer $index the zero-based index of the data item being rendered
+ * @var CListView $widget The CListView widget rendering this view
  */
 ?>
 <article class="blogPost">

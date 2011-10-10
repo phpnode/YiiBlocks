@@ -30,13 +30,13 @@ class ADbManagerModule extends ABaseAdminModule {
 		)
 	);
 
-	public function init() {
-		parent::init();
+	public function beforeControllerAction($controller, $action) {
 		foreach(Yii::app()->db->getSchema()->getTableNames() as $table) {
 			$this->_menuItems[0]['items'][] = array(
 				"label" => $table,
 				"url" => array("/admin/dbmanager/table/view","name" => $table),
 			);
 		}
+		parent::beforeControllerAction($controller,$action);
 	}
 }

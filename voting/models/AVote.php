@@ -15,9 +15,9 @@
  * @package packages.voting.models
  */
 class AVote extends CActiveRecord implements IAVote {
-	
+
 	/**
-	 * The beforeSave event, sets the voter ip, user agent 
+	 * The beforeSave event, sets the voter ip, user agent
 	 * and user id if possible.
 	 * @see CActiveRecord::beforeSave()
 	 */
@@ -56,7 +56,7 @@ class AVote extends CActiveRecord implements IAVote {
 	}
 
 	/**
-	 * Returns the validation rules for attributes. 
+	 * Returns the validation rules for attributes.
 	 * @see CModel::rules()
 	 * @return array validation rules for model attributes.
 	 */
@@ -138,12 +138,12 @@ class AVote extends CActiveRecord implements IAVote {
 		$criteria->condition = "ownerModel = :voteOwnerModel AND ownerId = :voteOwnerId";
 		$criteria->params[":voteOwnerModel"] = get_class($owner);
 		$criteria->params[":voteOwnerId"] = $owner->primaryKey;
-		
+
 		$this->getDbCriteria()->mergeWith($criteria);
 		return $this;
 	}
-	
-	
+
+
 	/**
 	 * Named Scope: Returns all Votes by the current user
 	 * @return Vote $this The vote model with the scope applied.
@@ -159,11 +159,11 @@ class AVote extends CActiveRecord implements IAVote {
 			$criteria->params[":voterIP"] = $_SERVER['REMOTE_ADDR'];
 			$criteria->params[":voterUserAgent"] = $_SERVER['HTTP_USER_AGENT'];
 		}
-		
+
 		$this->getDbCriteria()->mergeWith($criteria);
 		return $this;
 	}
-	
+
 	/**
 	 * err
 	 */
@@ -188,7 +188,7 @@ class AVote extends CActiveRecord implements IAVote {
 					":ownerModel" => $ownerModel,
 				);
 		}
-		
+
 		return $relation;
 	}
 }

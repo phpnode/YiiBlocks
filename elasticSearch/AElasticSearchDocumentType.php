@@ -20,21 +20,29 @@ class AElasticSearchDocumentType extends CComponent {
 
 	/**
 	 * The elastic search connection
-	 * @var AElasticSearch
+	 * @var AElasticSearchConnection
 	 */
-	protected $connection;
-
+	public $connection;
+	/**
+	 * Holds the data provider for this document type
+	 * @var AElasticSearchDataProvider
+	 */
 	protected $_dataProvider;
+
+	/**
+	 * The elastic search schema
+	 * @var AElasticSearchResponse
+	 */
+	protected $_schema;
 	/**
 	 * Constructor, initializes the document type
 	 * @param string $name the name of the document type
 	 * @param AElasticSearchIndex $index the index the type belongs to
-	 * @param AElasticSearch $connection the connection for the index
 	 */
-	public function __construct($name, AElasticSearchIndex $index, AElasticSearch $connection) {
+	public function __construct($name, AElasticSearchIndex $index) {
 		$this->name = (string) $name;
 		$this->index = $index;
-		$this->connection = $connection;
+		$this->connection = $index->connection;
 	}
 	/**
 	 * Gets the data provider for this document type
@@ -90,5 +98,21 @@ class AElasticSearchDocumentType extends CComponent {
 	public function __toString() {
 
 		return $this->name;
+	}
+
+	/**
+	 * Sets the schema (mapping) for this document type
+	 * @param AElasticSearchRequest $schema the schema to set for this document type
+	 */
+	public function setSchema($schema) {
+		$this->_schema = $schema;
+	}
+
+	/**
+	 * Gets the schema (mapping) for this document type
+	 * @return AElasticSearchResponse the document schema (mapping)
+	 */
+	public function getSchema()	{
+		return $this->_schema;
 	}
 }

@@ -31,7 +31,7 @@ class AElasticSearchIndex extends CFormModel {
 
 	/**
 	 * The elastic search connection
-	 * @var AElasticSearch
+	 * @var AElasticSearchConnection
 	 */
 	public $connection;
 
@@ -54,7 +54,7 @@ class AElasticSearchIndex extends CFormModel {
 	 * @param AElasticSearch $connection the elastic search connection
 	 * @return CAttributeCollection the indexes
 	 */
-	public static function fromResponse(AElasticSearchResponse $response, AElasticSearch $connection) {
+	public static function fromResponse(AElasticSearchResponse $response, AElasticSearchConnection $connection) {
 		$indices = new CAttributeCollection();
 		foreach($response->indices as $name => $index) {
 			$item = new AElasticSearchIndex();

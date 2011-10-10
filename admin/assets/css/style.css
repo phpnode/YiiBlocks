@@ -882,6 +882,12 @@ a.iconOnly {
 .icon.download {
 	background-image: url("icons/drive_download.png");
 }
+.icon.user {
+	background-image: url("icons/user.png");
+}
+.icon.benchmark {
+	background-image: url("icons/chart_line.png");
+}
 .icon.describe {
 	background-image: url("icons/note_go.png");
 }

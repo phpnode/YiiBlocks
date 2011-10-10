@@ -59,8 +59,8 @@ class AComment extends CActiveRecord
 			);
 		}
 		if (Yii::app()->getModule("comments")->useNestedSet) {
-			$behaviors["ANestedSet"] = array(
-					"class" => "packages.nestedSet.ANestedSetBehavior",
+			$behaviors["ENestedSet"] = array(
+					"class" => "packages.nestedSet.ENestedSetBehavior",
 					"hasManyRoots" => true,
 					"rootAttribute" => "root",
 					"leftAttribute" => "lft",

@@ -1,7 +1,7 @@
 <?php
 /**
  * Shows a list of packages in the namespace
- * @uses ANamespaceDoc $namespace the global namespace
+ * @var ANamespaceDoc $namespace the global namespace
  */
 ?>
 <table class='package summary'>

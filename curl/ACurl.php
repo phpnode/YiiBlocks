@@ -12,13 +12,44 @@ class ACurl extends CComponent {
 	 * @var ACurlOptions
 	 */
 	protected $_options;
-	
+
 	/**
 	 * Holds the curl handle
 	 * @var resource
 	 */
 	protected $_handle;
-	
+
+	/**
+	 * Holds the cache key
+	 * @var string
+	 */
+	protected $_cacheKey;
+
+	/**
+	 * The caching duration
+	 * @var integer
+	 */
+	protected $_cacheDuration;
+
+	/**
+	 * The cache dependency
+	 * @var CCacheDependency
+	 */
+	protected $_cacheDependency;
+
+	/**
+	 * The cache component to use when caching results
+	 * @var CCache
+	 */
+	protected $_cacheComponent;
+
+	/**
+	 * Whether to cache the query result or not.
+	 * Defaults to false.
+	 * @var boolean
+	 */
+	protected $_cache = false;
+
 	/**
 	 * Returns the CURL handle for this request
 	 * @var resource
@@ -29,7 +60,7 @@ class ACurl extends CComponent {
 		}
 		return $this->_handle;
 	}
-	
+
 	/**
 	 * Sets the curl handle for this request.
 	 * @param resource $value The CURL handle
@@ -39,7 +70,7 @@ class ACurl extends CComponent {
 		$this->_handle = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Gets the options to use for this request.
 	 * @return ACurlOptions the options
@@ -55,13 +86,13 @@ class ACurl extends CComponent {
 				"timeout" => 30,
 				"encoding" => "gzip",
 				"ssl_verifypeer" => false,
-				
-				
+
+
 			));
 		}
 		return $this->_options;
 	}
-	
+
 	/**
 	 * Sets the options to the given value.
 	 * @param mixed $value the options, either an array or an ACurlOptions object
@@ -74,15 +105,15 @@ class ACurl extends CComponent {
 		$this->_options = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Prepares the CURL request, applies the options to the handler.
 	 */
 	public function prepareRequest() {
-		$this->options->applyTo($this);
-		
+		$this->getOptions()->applyTo($this);
+
 	}
-	
+
 	/**
 	 * Sets the post data and the URL to post to and prepares the request
 	 * but does not actually perform the POST, exec() should be called to
@@ -92,9 +123,9 @@ class ACurl extends CComponent {
 	 * @return ACurl $this with the POST and URL settings applied
 	 */
 	public function post($url, $data = array()) {
-		$this->options->url = $url;
-		$this->options->postfields = $data;
-		$this->options->post = true;
+		$this->getOptions()->url = $url;
+		$this->getOptions()->postfields = $data;
+		$this->getOptions()->post = true;
 		$this->prepareRequest();
 		return $this;
 	}
@@ -109,14 +140,14 @@ class ACurl extends CComponent {
 	 * @return ACurl $this with the PUT and URL settings applied
 	 */
 	public function put($url, $data = array()) {
-		$this->options->url = $url;
-		$this->options->postfields = $data;
-		$this->options->post = false;
-		$this->options->customRequest = "PUT";
+		$this->getOptions()->url = $url;
+		$this->getOptions()->postfields = $data;
+		$this->getOptions()->post = false;
+		$this->getOptions()->customRequest = "PUT";
 		$this->prepareRequest();
 		return $this;
-	}	
-	
+	}
+
 	/**
 	 * Sets the DELETE data and the URL to DELETE to and prepares the request
 	 * but does not actually perform the DELETE, exec() should be called to
@@ -125,13 +156,13 @@ class ACurl extends CComponent {
 	 * @return ACurl $this with the DELETE and URL settings applied
 	 */
 	public function delete($url) {
-		$this->options->url = $url;
-		$this->options->customRequest = "DELETE";
+		$this->getOptions()->url = $url;
+		$this->getOptions()->customRequest = "DELETE";
 		$this->prepareRequest();
 		return $this;
-	}	
-	
-	
+	}
+
+
 	/**
 	 * Sets the URL and prepares the GET request
 	 * but does not actually perform the GET, exec() should be called to
@@ -140,9 +171,9 @@ class ACurl extends CComponent {
 	 * @return ACurl $this with the URL settings applied
 	 */
 	public function get($url) {
-		$this->options->url = $url;
-		
-		$this->options->post = false;
+		$this->getOptions()->url = $url;
+
+		$this->getOptions()->post = false;
 		$this->prepareRequest();
 		return $this;
 	}
@@ -154,12 +185,12 @@ class ACurl extends CComponent {
 	 * @return ACurl $this with the URL and relevant curl settings applied
 	 */
 	public function head($url) {
-		$this->options->url = $url;
-		$this->options->nobody = true;
+		$this->getOptions()->url = $url;
+		$this->getOptions()->nobody = true;
 		$this->prepareRequest();
 		return $this;
 	}
-	
+
 	/**
 	 * Executes the request and returns the response.
 	 * @return ACurlResponse the wrapped curl response
@@ -167,9 +198,23 @@ class ACurl extends CComponent {
 	public function exec() {
 		$response = new ACurlResponse;
 		$response->request = $this;
-		$response->data = curl_exec($this->getHandle());
-		
-		if ($this->options->header) {
+		$data = false;
+		$cache = $this->_cache;
+		if ($this->getOptions()->itemAt("post") || $this->getOptions()->itemAt("customRequest")) {
+			$cache = false;
+		}
+		if ($cache) {
+			$data = $this->getCacheComponent()->get($this->getCacheKey());
+		}
+		if ($data === false) {
+			$data = curl_exec($this->getHandle());
+			if ($cache) {
+				$this->getCacheComponent()->set($this->getCacheKey(),$this->_cacheDuration,$this->_cacheDependency);
+			}
+		}
+		$response->data = $data;
+
+		if ($this->getOptions()->header) {
 			$response->headers = mb_substr($response->data, 0, $response->info->header_size);
 			$response->data = mb_substr($response->data, $response->info->header_size);
 			if (mb_strlen($response->data) == 0) {
@@ -179,9 +224,60 @@ class ACurl extends CComponent {
 		if (curl_error($this->getHandle())) {
 			throw new ACurlException(curl_errno($this->getHandle()),curl_error($this->getHandle()), $response);
 		}
-		
+
 		return $response;
 	}
-	
-	
+
+	/**
+	 * Enables caching for curl requests
+	 * @param integer $duration the caching duration
+	 * @param CCacheDependency $dependency the cache dependency for this request
+	 * @return ACurl $this with the cache setting applied
+	 */
+	public function cache($duration = 60, $dependency = null) {
+		$this->_cache = true;
+		$this->_cacheDuration = $duration;
+		$this->_cacheDependency = $dependency;
+		return $this;
+	}
+
+	/**
+	 * Sets the cache component to use for this request
+	 * @param CCache $cacheComponent the cache component
+	 */
+	public function setCacheComponent($cacheComponent) {
+		$this->_cacheComponent = $cacheComponent;
+	}
+
+	/**
+	 * Gets the cache component for this curl request
+	 * @return CCache the caching component to use for this request
+	 */
+	public function getCacheComponent() {
+		if ($this->_cacheComponent === null) {
+			$this->_cacheComponent = Yii::app()->getCache();
+		}
+		return $this->_cacheComponent;
+	}
+
+	/**
+	 * Sets the cache key for this request
+	 * @param string $cacheKey the cache key
+	 * @return string the cache key
+	 */
+	public function setCacheKey($cacheKey) {
+		return $this->_cacheKey = $cacheKey;
+	}
+
+	/**
+	 * Gets the cache key for this request
+	 * @return string the cache key
+	 */
+	public function getCacheKey() {
+		if ($this->_cacheKey === null) {
+			$this->_cacheKey = "ACurl:cachedRequest:".sha1(serialize($this->getOptions()->toArray()));
+		}
+		return $this->_cacheKey;
+	}
+
 }

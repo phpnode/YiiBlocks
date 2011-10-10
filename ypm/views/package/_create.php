@@ -1,15 +1,14 @@
 <?php
 /**
  * A form for creating new packages
- * @uses APackage $model The package to create
+ * @var APackage $model The package to create
  */
 ?>
 
-<h1>Create A New Package</h1>
-<p>
-	Fill out the form to begin creating a package that can be published with Yii Package Manager.	
+<p class='info box'>
+	Fill out the form to begin creating a package that can be published with Yii Package Manager.
 </p>
-<div class='form wide'>
+<div class='form'>
 	<?php
 	$form=$this->beginWidget('CActiveForm', array(
 		'id'=>'package-form',
@@ -18,8 +17,7 @@
 	));
 	echo CHtml::hiddenField("stage",1);
 	?>
-	
-	<p class="note">Fields with <span class="required">*</span> are required.</p>
+
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'name'); ?>
@@ -33,7 +31,7 @@
 		<p class='hint'>Please enter a short description for this package.</p>
 		<?php echo $form->error($model,'description'); ?>
 	</div>
-	
+
 	<div class="row buttons">
 		<?php echo CHtml::submitButton('Next',array("class" => "save button")); ?>
 	</div>

@@ -1,8 +1,8 @@
 <?php
 /**
  * The default email template
- * @uses AEmail $this the email being sent
- * @uses string $content the content to render
+ * @var AEmail $this the email being sent
+ * @var string $content the content to render
  */
 
 echo $content;

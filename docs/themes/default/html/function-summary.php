@@ -1,7 +1,7 @@
 <?php
 /**
  * Shows a summary of this function
- * @uses AFunctionDoc $function The class to summarize
+ * @var AFunctionDoc $function The class to summarize
  */
 ?>
 <tr>

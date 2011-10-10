@@ -1,7 +1,7 @@
 <?php
 /**
  * Displays a password reset form
- * @uses AUser $model the model to reset the password for
+ * @var AUser $model the model to reset the password for
  */
 $this->pageTitle = "Reset Your Password";
 ?>
@@ -22,7 +22,7 @@ $this->pageTitle = "Reset Your Password";
 	<div class="row buttons">
 		<?php echo CHtml::submitButton("Reset Password",array("class" => "button")); ?>
 	</div>
-	
+
 	<?php
 	$this->endWidget();
 	?>

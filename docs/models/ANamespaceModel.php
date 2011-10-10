@@ -10,17 +10,17 @@
  * @property integer $fileId The file that this namespace is declared in
  * @property integer $startLine The start line for this namespace declaration
  * @property integer $endLine The end line for this namespace declaration
- * 
+ *
  * @author Charles Pick
  * @package packages.docs.models
  */
 class ANamespaceModel extends ADocsModel {
-	
+
 
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className the class name to instantiate
-	 * @return ADocsModel the static model class
+	 * @return ANamespaceModel the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -35,7 +35,7 @@ class ANamespaceModel extends ADocsModel {
 	public function tableName() {
 		return "namespaces";
 	}
-	
+
 	/**
 	 * Returns the relational rules that specify the relations this model uses
 	 * @return array relational rules.
@@ -50,4 +50,13 @@ class ANamespaceModel extends ADocsModel {
 			"functions" => array(self::HAS_MANY,"AFunctionModel","namespaceId"),
 		);
 	}
+
+	public function findByName($name) {
+		if (strstr($name, "\\")) {
+			foreach(explode("\\",$name) as $name) {
+
+			}
+		}
+	}
+
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * Gets text documentation for a class.
- * @uses $class AClassDoc the class to document
+ * @var $class AClassDoc the class to document
  */
 echo str_repeat("-",50)."\n";
 echo $class->name."\n";
@@ -18,7 +18,7 @@ if (count($class->constants)) {
 
 if (count($class->properties)) {
 	echo "Properties:\n";
-	
+
 	foreach($class->properties as $property) {
 		echo "\t".$property->signature()."\n";
 		echo "\t\t".$property->description."\n\n";

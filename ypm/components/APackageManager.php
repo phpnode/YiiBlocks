@@ -1,7 +1,7 @@
 <?php
 /**
  * The package manager handles installing, upgrading and removing Yii Packages.
- * 
+ *
  * @author Charles Pick
  * @package packages.ypm.components
  */
@@ -11,14 +11,14 @@ class APackageManager extends CApplicationComponent {
 	 * @var APackageRepository[]
 	 */
 	protected $_repositories;
-	
+
 	/**
 	 * Holds a list of installed packages.
 	 * @see getPackages
-	 * @var APackage[] 
+	 * @var APackage[]
 	 */
 	protected $_packages;
-	
+
 	/**
 	 * Gets a list of installed packages
 	 * @return APackage[]
@@ -42,29 +42,34 @@ class APackageManager extends CApplicationComponent {
 	}
 	/**
 	 * Gets a list of authenticated package repositories
-	 * @return APackageRepository[] a list of authenticated package repositories
+	 * @return CAttributeCollection  a list of authenticated package repositories
 	 */
 	public function getRepositories() {
 		if ($this->_repositories === null) {
 			$this->_repositories = new CAttributeCollection();
-			foreach(include(Yii::getPathOfAlias("packages.ypm.data.repositories").".php") as $item) {
-				$repo = new APackageRepository();
-				foreach($item as $attribute => $value) {
-					$repo->{$attribute} = $value;
+			$directories = AFileHelper::findDirectories(Yii::getPathOfAlias("packages.ypm.repositories"),array(
+				"level" => 0,
+			));
+			foreach($directories as $dir) {
+				if (file_exists($dir."/repository.json")) {
+					$repo = APackageRepository::load(basename($dir));
+					if (is_object($repo)) {
+						$this->_repositories->add($repo->name,$repo);
+					}
 				}
-				$this->_repositories->add($repo->name, $repo);
 			}
 		}
 		return $this->_repositories;
 	}
-	
+
+
 	/**
 	 * Finds and installs a package based on the given name.
 	 * @param string $packageName the name of the package to install
 	 * @return boolean whether the installation succeeded or not
 	 */
 	public function install($packageName) {
-		
+
 		$package = $this->find($packageName);
 		if ($package === false) {
 			return false;
@@ -87,7 +92,7 @@ class APackageManager extends CApplicationComponent {
 				return false;
 			}
 			$repository = $this->repositories->{$repoName};
-			
+
 			if (!isset($repository->packages->{$packageName})) {
 				return false;
 			}
@@ -104,9 +109,9 @@ class APackageManager extends CApplicationComponent {
 				return false;
 			}
 			else {
-				return $packageManager->packages->{$packageName};
+				return $this->packages->{$packageName};
 			}
 		}
-		
+
 	}
 }

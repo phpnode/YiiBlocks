@@ -5,7 +5,19 @@
  * @package packages.fileBrowser
  */
 class AFileHelper extends CFileHelper {
-	
+	/**
+	 * Formats a file size
+	 * @param integer $size the file size in bytes
+	 * @return string the formatted file size
+	 */
+	public static function formatSize($size) {
+		$units = array(' B', ' KB', ' MB', ' GB', ' TB', ' PB');
+		for ($i = 0; $size > 1024; $i++) {
+			$size /= 1024;
+		}
+		return round($size, 2).$units[$i];
+	}
+
 	/**
 	 * Returns the directories found under the specified directory and subdirectories.
 	 * @param string $dir the directory under which the files will be looked for

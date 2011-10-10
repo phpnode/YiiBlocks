@@ -1,7 +1,7 @@
 <?php
 /**
  * The input form for the {@link ABlogPost} model
- * @uses BlogPost $model The ABlogPost model
+ * @var BlogPost $model The ABlogPost model
  */
 ?>
 

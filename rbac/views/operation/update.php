@@ -1,7 +1,7 @@
 <?php
 /**
  * A view used to update {@link AAuthOperation} models
- * @uses AAuthOperation $model The AAuthOperation model to be updated
+ * @var AAuthOperation $model The AAuthOperation model to be updated
  */
 
 $this->breadcrumbs=array(

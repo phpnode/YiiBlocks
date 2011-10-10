@@ -1,8 +1,8 @@
 <?php
 /**
  * An interface for adding reviews by users.
- * @uses AReview $model The review model
- * @uses CActiveRecord $owner The model being reviewed
+ * @var AReview $model The review model
+ * @var CActiveRecord $owner The model being reviewed
  */
 $this->pageTitle = "Edit a review";
 

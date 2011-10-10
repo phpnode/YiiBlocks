@@ -1,7 +1,7 @@
 <?php
 /**
  * Displays a form to allow the user to login
- * @uses ALoginForm $model The login form model
+ * @var ALoginForm $model The login form model
  */
 ?>
 <article>
@@ -12,7 +12,7 @@
 			'id'=>'user-form',
 			'enableAjaxValidation'=>true,
 		)); ?>
-		
+
 		<div class="row">
 			<?php echo $form->labelEx($model,'email'); ?>
 			<?php echo $form->textField($model,'email',array('size'=>60,'maxlength'=>450)); ?>
@@ -30,11 +30,11 @@
 			<?php echo $form->label($model,'rememberMe'); ?>
 			<?php echo $form->error($model,'rememberMe'); ?>
 		</div>
-	
+
 		<div class="row buttons">
 			<?php echo CHtml::submitButton("Login",array("class" => "login button")); ?>
 		</div>
-		
+
 		<?php
 		$this->endWidget();
 		?>

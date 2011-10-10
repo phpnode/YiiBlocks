@@ -1,7 +1,7 @@
 <?php
 /**
  * A view used to create new {@link ABlogPost} models
- * @uses ABlogPost $model The ABlogPost model to be inserted
+ * @var ABlogPost $model The ABlogPost model to be inserted
  */
 
 $this->breadcrumbs=array(

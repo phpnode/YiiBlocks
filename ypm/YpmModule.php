@@ -7,34 +7,23 @@ Yii::import("packages.ypm.exceptions.*");
  * @package packages.ypm
  * @author Charles Pick
  */
-class YpmModule extends CWebModule {
-	
-	
-		
+class YpmModule extends ABaseAdminModule {
+
 	/**
-	 * Called when the module is being created.
-	 * Put any module specific configuration here
+	 * The menu items to show for this module.
+	 * These menu items will be shown in the sidebar in the admin interface
+	 * @see CMenu::$items
+	 * @var array
 	 */
-	public function init()
-	{
-		return parent::init();
-	}
-	/**
-	 * This function is called before the controller action is run
-	 * @param CController $controller The controller to run
-	 * @param CAction $action The action to run on the controller
-	 * @return boolean True if the action should be executed, false if the action should be stopped
-	 */
-	public function beforeControllerAction($controller, $action)
-	{
-		if(parent::beforeControllerAction($controller, $action))
-		{
-			// this method is called before any module controller action is performed
-			// you may place customized code here
-			return true;
-		}
-		else
-			return false;
-	}
-	
+	protected $_menuItems = array(
+		array(
+			"label" => "Package Manager",
+			"url" => array("/admin/ypm/default/index"),
+			"linkOptions" => array(
+				"class" => "package icon",
+			),
+		)
+	);
+
+
 }

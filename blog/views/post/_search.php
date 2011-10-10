@@ -1,8 +1,8 @@
 <?php
 /**
  * The search form for the {@link BlogPost} model
- * @uses BlogPost $model The BlogPost model
- */ 
+ * @var BlogPost $model The BlogPost model
+ */
 ?>
 <div class="wide form">
 
@@ -11,7 +11,7 @@
 	'method'=>'get',
 )); ?>
 
-	
+
 	<div class="row">
 		<?php echo $form->label($model,'title'); ?>
 		<?php echo $form->textField($model,'title',array('size'=>60,'maxlength'=>150)); ?>

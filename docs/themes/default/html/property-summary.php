@@ -1,7 +1,7 @@
 <?php
 /**
  * Shows a summary of this property
- * @uses AClassProperty $property The property to summarize
+ * @var AClassProperty $property The property to summarize
  */
 ?>
 <tr>

@@ -1,7 +1,7 @@
 <?php
 /**
  * Displays information for a particular {@link AAuthOperation} model
- * @uses AAuthOperation $model The AAuthOperation model to show
+ * @var AAuthOperation $model The AAuthOperation model to show
  */
 $this->breadcrumbs=array(
 	'Role Based Access Control' => array('rbac/index'),

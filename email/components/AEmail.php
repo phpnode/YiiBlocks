@@ -11,15 +11,15 @@
  * @property string $content the email content
  * @property boolean $isHtml whether this is a html email or not
  * @property integer $timeAdded the time the email was added
- * 
+ *
  * @property AResource[] $attachments The email attachments, handled by the {@link AResourceful resourceful} behavior
- * 
+ *
  * @package packages.email.components
  * @author Charles Pick
  */
 class AEmail extends CActiveRecord {
 	/**
-	 * The layout view to use when rendering this email 
+	 * The layout view to use when rendering this email
 	 * @var string
 	 */
 	public $layout;
@@ -74,7 +74,7 @@ class AEmail extends CActiveRecord {
 	public function tableName() {
 		return "emails";
 	}
-	
+
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className the class name to instantiate
@@ -115,7 +115,7 @@ class AEmail extends CActiveRecord {
 					"email" => $this,
 					"content" => $this->renderPartial($this->view,$this->viewData)
 					)
-				);		
+				);
 		}
 	}
 	/**
@@ -127,8 +127,8 @@ class AEmail extends CActiveRecord {
 	protected function renderPartial($viewName, $data = array()) {
 		if(empty($viewName))
 			return false;
-		
-		
+
+
 		$extension='.php';
 		$moduleViewPath=$basePath=Yii::app()->getViewPath();
 		if (isset(Yii::app()->controller)) {
@@ -151,7 +151,7 @@ class AEmail extends CActiveRecord {
 		else {
 			$viewFile=$viewPath.DIRECTORY_SEPARATOR.$viewName;
 		}
-		
+
 		if(is_file($viewFile.$extension)) {
 			return $this->renderInternal($viewFile.$extension,$data);
 		}

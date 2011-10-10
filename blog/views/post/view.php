@@ -1,7 +1,7 @@
 <?php
 /**
  * Displays information for a particular {@link BlogPost} model
- * @uses BlogPost $model The BlogPost model to show
+ * @var BlogPost $model The BlogPost model to show
  */
 $this->breadcrumbs=array(
 	'Blog'=>array('/blog'),

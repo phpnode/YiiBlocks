@@ -1,8 +1,8 @@
 <?php
 /**
  * An form for adding reviews by users.
- * @uses AReview $model The review model
- * @uses CActiveRecord $owner The model being reviewed
+ * @var AReview $model The review model
+ * @var CActiveRecord $owner The model being reviewed
  */
 ?>
 
@@ -46,7 +46,7 @@
 	</div>
 	<div class="row">
 		<?php echo $form->labelEx($model,'score'); ?>
-		<?php 
+		<?php
 			$this->widget("CStarRating",array(
 				"model" => $model,
 				"attribute" => "score"

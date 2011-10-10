@@ -10,8 +10,8 @@ class APHPTokenizer extends CComponent {
 	 * @var ANamespaceDoc
 	 */
 	protected $_globalNamespace;
-	
-	
+
+
 	/**
 	 * Reads a PHP file and returns a list of contents
 	 * @param string $filename The full path to the file
@@ -22,16 +22,16 @@ class APHPTokenizer extends CComponent {
 		if ($this->_globalNamespace === null) {
 			$this->_globalNamespace = new ANamespaceDoc;
 		}
-		
+
 		$state = new APHPTokenizerState($this->_globalNamespace, $filename);
 		$state->tokens = $tokens;
 		$state->parse();
-		
+
 		return $this->_globalNamespace;
 	}
 
-	
-	
+
+
 
 }
 
@@ -56,13 +56,13 @@ class APHPTokenizerState extends CComponent {
 	 * @var integer
 	 */
 	public $tokenIndex = 0;
-	
+
 	/**
 	 * The current line in the file being parsed
 	 * @var integer
-	 */	
+	 */
 	public $currentLine = 0;
-		
+
 	/**
 	 * Whether we're in a declaration of some kind
 	 * @var boolean
@@ -71,15 +71,15 @@ class APHPTokenizerState extends CComponent {
 	/**
 	 * Whether we're in a class or not
 	 * @var boolean
-	 */	
+	 */
 	public $inClass = false;
-	
+
 	/**
 	 * Whether we're in a class declaration or not
 	 * @var boolean
-	 */	
+	 */
 	public $inClassDeclaration = false;
-	
+
 	/**
 	 * Whether we're in a const assignment or not
 	 */
@@ -90,13 +90,13 @@ class APHPTokenizerState extends CComponent {
 	 * @var boolean
 	 */
 	public $inFunction = false;
-	
+
 	/**
 	 * Whether we're in a function declaration or not
 	 * @var boolean
 	 */
 	public $inFunctionDeclaration = false;
-	
+
 	/**
 	 * Whether we're in a method or not
 	 * @var boolean
@@ -107,79 +107,79 @@ class APHPTokenizerState extends CComponent {
 	 * @var boolean
 	 */
 	public $inMethodDeclaration = false;
-	
+
 	/**
 	 * Whether we're in a property declaration or not
 	 * @var boolean
 	 */
 	public $inPropertyDeclaration = false;
-	
+
 	/**
 	 * Whether we're in a property assignment or not
 	 * @var boolean
 	 */
 	public $inPropertyAssignment = false;
-	
+
 	/**
 	 * Whether we're in a paramenter assignment  or not
 	 * @var boolean
 	 */
 	public $inParameterAssignment = false;
-	
+
 	/**
 	 * Whether we're in a parameter section or not
 	 * @var boolean
 	 */
 	public $inParameterSection = false;
-	
+
 	/**
 	 * Whether we're in a parameter declaration or not
 	 * @var boolean
 	 */
 	public $inParameterDeclaration = false;
-	
+
 	/**
 	 * Whether we're in an implements declaration or not
 	 * @var boolean
 	 */
 	public $inImplementsDeclaration = false;
-	
+
 	/**
 	 * Whether we're in an extends declaration or not
 	 * @var boolean
 	 */
 	public $inExtendsDeclaration = false;
-	
+
 	/**
 	 * Whether the current declaration is public or not
 	 * @var boolean
 	 */
 	public $inPublic = false;
-	
+
 	/**
 	 * Whether the current declaration is private or not
 	 * @var boolean
 	 */
 	public $inPrivate = false;
-	
+
 	/**
 	 * Whether the current declaration is protected or not
 	 * @var boolean
 	 */
 	public $inProtected = false;
-	
+
 	/**
 	 * Whether the current declaration is static or not
 	 * @var boolean
 	 */
 	public $inStatic = false;
-	
+
 	/**
 	 * Whether the current declaration is final or not
 	 * @var boolean
 	 */
 	public $inFinal = false;
-	
+
 	/**
 	 * Whether we're in an interface or not
 	 * @var boolean
@@ -190,7 +190,7 @@ class APHPTokenizerState extends CComponent {
 	 * @var boolean
 	 */
 	public $inAbstract = false;
-	
+
 	/**
 	 * Holds the curly bracket stack "{}"
 	 * @var CStack
@@ -206,44 +206,44 @@ class APHPTokenizerState extends CComponent {
 	 * @var CStack
 	 */
 	public $squareBracketStack;
-	
+
 	/**
 	 * Holds the parenthesis stack "()"
 	 * @var CStack
 	 */
 	public $parensStack;
-	
+
 	/**
 	 * Whether we're in a namespace or not
 	 * @var boolean
 	 */
 	public $inNamespace = false;
-	
-	
+
+
 	/**
 	 * Whether we're in a namespace declaration or not
 	 * @var boolean
 	 */
 	public $inNamespaceDeclaration = false;
-	
+
 	/**
 	 * Holds the namespace stack
 	 * @var CStack
 	 */
-	public $namespaceStack;	
-	
+	public $namespaceStack;
+
 	/**
 	 * The (global) namespace to populate
 	 * @var ANamespaceDoc
 	 */
 	public $contents;
-	
+
 	/**
 	 * The last PHP doc comment
 	 * @var string
 	 */
 	public $lastComment;
-	
+
 	/**
 	 * Constructor
 	 * @param ANamespaceDoc $contents The (global) namespace to populate
@@ -257,7 +257,7 @@ class APHPTokenizerState extends CComponent {
 		$this->namespaceStack = new CStack();
 		$this->filename = $filename;
 	}
-	
+
 	/**
 	 * Parses the list of tokens
 	 * @return ANamespace the parsed content
@@ -269,7 +269,7 @@ class APHPTokenizerState extends CComponent {
 			$token = $this->getNextToken();
 			if (is_array($token)) {
 				$currentLine = $token[2];
-				
+
 				switch($token[0]) {
 					case T_NAMESPACE:
 						$this->tokenIndex--;
@@ -285,7 +285,7 @@ class APHPTokenizerState extends CComponent {
 						break;
 					case T_CLASS:
 						$this->tokenIndex--;
-						
+
 						$this->parseClass();
 						break;
 					case T_INTERFACE:
@@ -299,12 +299,12 @@ class APHPTokenizerState extends CComponent {
 					case T_DOC_COMMENT:
 						$this->lastComment = $token[1];
 						break;
-				}		
-				
+				}
+
 			}
-		
+
 		}
-		
+
 		return $this->contents;
 	}
 	/**
@@ -316,18 +316,18 @@ class APHPTokenizerState extends CComponent {
 			$token = $this->getNextToken();
 			if (is_array($token)) {
 				$currentLine = $token[2];
-				
+
 				switch($token[0]) {
 					case T_NAMESPACE:
 						$this->inNamespaceDeclaration = true;
-						$namespace = new ANamespaceDoc;
+						$namespace = new ANamespaceModel;
 						$namespace->filename = $this->filename;
 						$namespace->comment = $this->lastComment;
 						$namespace->startLine = $currentLine;
 						$this->lastComment = null;
-						
+
 						break;
-					case T_STRING: 
+					case T_STRING:
 						if ($this->inNamespaceDeclaration) {
 							$namespace->name = $token[1];
 							if ($this->inNamespace) {
@@ -364,8 +364,8 @@ class APHPTokenizerState extends CComponent {
 					case T_DOC_COMMENT:
 						$this->lastComment = $token[1];
 						break;
-				}		
-				
+				}
+
 			}
 			else {
 				switch($token) {
@@ -386,7 +386,7 @@ class APHPTokenizerState extends CComponent {
 							$this->inNamespaceDeclaration = false;
 							$this->inNamespace = true;
 						}
-						
+
 						break;
 					case "}":
 						$this->curlyBracketStack->pop();
@@ -403,20 +403,20 @@ class APHPTokenizerState extends CComponent {
 						break;
 				}
 			}
-		
+
 		}
 		// clean up
 		$this->lastComment = null;
 		if ($this->inNamespace) {
-			
+
 			$namespace = $this->namespaceStack->pop();
 			$namespace->endLine = $currentLine;
 			if ($this->namespaceStack->count() == 0) {
 				$this->inNamespace = false;
 			}
 		}
-	} 
-	
+	}
+
 	/**
 	 * Parses a function
 	 */
@@ -428,9 +428,9 @@ class APHPTokenizerState extends CComponent {
 			$token = $this->getNextToken();
 			if (is_array($token)) {
 				$currentLine = $token[2];
-				
+
 				switch($token[0]) {
-					
+
 					case T_FUNCTION:
 						if (!$this->inFunction) { // we don't / won't document closures
 							$this->inFunctionDeclaration = true;
@@ -445,7 +445,7 @@ class APHPTokenizerState extends CComponent {
 								$function->namespace = $this->contents;
 							}
 							$this->lastComment = null;
-							
+
 						}
 						break;
 					case T_STRING:
@@ -507,11 +507,11 @@ class APHPTokenizerState extends CComponent {
 							$parameter->value .= $token[1];
 						}
 						break;
-				}		
-				
+				}
+
 			}
 			else {
-				
+
 				switch($token) {
 					case "=":
 						if ($this->inParameterDeclaration && $parensStack->count() == 1) {
@@ -532,7 +532,7 @@ class APHPTokenizerState extends CComponent {
 							$parameter->value .= $token;
 						}
 						break;
-					
+
 					case "{":
 						$curlyBracketStack->push($this->currentLine);
 						if ($this->inFunctionDeclaration) {
@@ -541,7 +541,7 @@ class APHPTokenizerState extends CComponent {
 							$this->inFunctionDeclaration = false;
 							$this->inFunction = true;
 						}
-						
+
 						break;
 					case "}":
 						$curlyBracketStack->pop();
@@ -560,7 +560,7 @@ class APHPTokenizerState extends CComponent {
 						elseif ($this->inParameterAssignment) {
 							$parameter->value .= $token;
 						}
-						
+
 						break;
 					case ")":
 						$parensStack->pop();
@@ -584,7 +584,7 @@ class APHPTokenizerState extends CComponent {
 						break;
 				}
 			}
-		
+
 		}
 	}
 	/**
@@ -596,12 +596,12 @@ class APHPTokenizerState extends CComponent {
 		$parensStack = new CStack;
 		$isAbstract = false;
 		$isFinal = false;
-		
+
 		for($i = $this->tokenIndex; $i < count($this->tokens); $i++ ) {
 			$token = $this->getNextToken();
 			if (is_array($token)) {
 				$currentLine = $token[2];
-				
+
 				switch($token[0]) {
 					case T_CLASS:
 						if (!$this->inClassDeclaration) {
@@ -622,7 +622,7 @@ class APHPTokenizerState extends CComponent {
 						break;
 					case T_ABSTRACT:
 						if (!$this->inClass) {
-							
+
 							if (!$this->inClassDeclaration) {
 								$this->inClassDeclaration = true;
 								$class = new AClassDoc;
@@ -636,13 +636,13 @@ class APHPTokenizerState extends CComponent {
 									$class->namespace = $this->contents;
 								}
 								$class->comment = $this->lastComment;
-								
+
 								$this->lastComment = null;
 							}
 							$class->isAbstract = true;
 						}
 						else {
-							
+
 							$this->inAbstract = true;
 						}
 						break;
@@ -729,7 +729,7 @@ class APHPTokenizerState extends CComponent {
 							if ($this->inImplementsDeclaration) {
 								// this is the name of an interface
 								$class->implements[] = $token[1];
-								
+
 							}
 							elseif ($this->inExtendsDeclaration) {
 								// this is the name of a parent class
@@ -738,7 +738,7 @@ class APHPTokenizerState extends CComponent {
 							else {
 								// this is the class/interface name
 								$class->name = $token[1];
-								
+
 								// add to contents or namespace as appropriate
 								if ($class instanceof AClassDoc) {
 									if ($this->inNamespace) {
@@ -747,10 +747,10 @@ class APHPTokenizerState extends CComponent {
 									else {
 										$this->contents->classes->add($class->name, $class);
 									}
-									
+
 								}
 								else {
-									
+
 									if ($this->inNamespace) {
 										$this->namespaceStack->peek()->interfaces->add($class->name, $class);
 									}
@@ -768,12 +768,12 @@ class APHPTokenizerState extends CComponent {
 					case T_DOC_COMMENT:
 						$this->lastComment = $token[1];
 						break;
-					
-				}		
-				
+
+				}
+
 			}
 			else {
-				
+
 				switch($token) {
 					case ";":
 						if ($this->inClassDeclaration) {
@@ -783,7 +783,7 @@ class APHPTokenizerState extends CComponent {
 							$class->endLine = $currentLine + 1;
 							return;
 						}
-						break;				
+						break;
 					case "{":
 						$curlyBracketStack->push($this->currentLine);
 						if ($this->inClassDeclaration) {
@@ -792,27 +792,27 @@ class APHPTokenizerState extends CComponent {
 							$this->inImplementsDeclaration = false;
 							$this->inClass = true;
 						}
-						
+
 						break;
 					case "}":
 						$curlyBracketStack->pop();
-						
+
 						if ($this->inClass && $curlyBracketStack->count() == 0) {
 							// this is the end of a class
 							$this->inClass = false;
 							$this->inInterface = false;
 							$class->endLine = $currentLine + 1;
-							
+
 							return;
 						}
 						break;
-					
+
 				}
 			}
-		
+
 		}
-	} 
-	
+	}
+
 	/**
 	 * Parses a class method
 	 */
@@ -824,9 +824,9 @@ class APHPTokenizerState extends CComponent {
 			$token = $this->getNextToken();
 			if (is_array($token)) {
 				$currentLine = $token[2];
-				
+
 				switch($token[0]) {
-					
+
 					case T_FUNCTION:
 						if (!$this->inMethod) { // we don't / won't document closures
 							$this->inMethodDeclaration = true;
@@ -849,7 +849,7 @@ class APHPTokenizerState extends CComponent {
 							$this->inStatic = false;
 							$this->inFinal = false;
 							$this->lastComment = null;
-							
+
 						}
 						break;
 					case T_STRING:
@@ -908,11 +908,11 @@ class APHPTokenizerState extends CComponent {
 							$parameter->value .= $token[1];
 						}
 						break;
-				}		
-				
+				}
+
 			}
 			else {
-				
+
 				switch($token) {
 					case "=":
 						if ($this->inParameterDeclaration && $parensStack->count() == 1) {
@@ -933,9 +933,9 @@ class APHPTokenizerState extends CComponent {
 							$parameter->value .= $token;
 						}
 						break;
-					
+
 					case "{":
-					
+
 						$curlyBracketStack->push($this->currentLine);
 						if ($this->inMethodDeclaration) {
 							// this is the end of a method declaration
@@ -943,12 +943,12 @@ class APHPTokenizerState extends CComponent {
 							$this->inMethodDeclaration = false;
 							$this->inMethod = true;
 						}
-						
+
 						break;
 					case "}":
-					
+
 						$curlyBracketStack->pop();
-						
+
 						if ($this->inMethod && $curlyBracketStack->count() == 0) {
 							// this is the end of a method
 							$this->inMethod = false;
@@ -959,7 +959,7 @@ class APHPTokenizerState extends CComponent {
 					case ";":
 						if ($this->inMethodDeclaration && $curlyBracketStack->count() == 0) {
 							// this is the end of a method
-							
+
 							$this->inMethod = false;
 							$method->endLine = $currentLine + 1;
 							return;
@@ -973,7 +973,7 @@ class APHPTokenizerState extends CComponent {
 						elseif ($this->inParameterAssignment) {
 							$parameter->value .= $token;
 						}
-						
+
 						break;
 					case ")":
 						$parensStack->pop();
@@ -997,7 +997,7 @@ class APHPTokenizerState extends CComponent {
 						break;
 				}
 			}
-		
+
 		}
 	}
 	/**
@@ -1011,7 +1011,7 @@ class APHPTokenizerState extends CComponent {
 			$stop = 0;
 		}
 		$items = array();
-		
+
 		for($i = $this->tokenIndex; $i > $stop; $i--) {
 			if (!isset($this->tokens[$i])) {
 				break;
@@ -1038,11 +1038,11 @@ class APHPTokenizerState extends CComponent {
 			$token = $this->getNextToken();
 			if (is_array($token)) {
 				$currentLine = $token[2];
-				
+
 				switch($token[0]) {
-					
+
 					case T_VARIABLE:
-						
+
 						$this->inPropertyDeclaration = true;
 						$property = new AClassPropertyDoc;
 						$property->startLine = $currentLine;
@@ -1061,9 +1061,9 @@ class APHPTokenizerState extends CComponent {
 						$this->inPublic = false;
 						$this->inStatic = false;
 						$this->lastComment = null;
-							
+
 						break;
-					
+
 					case T_DOC_COMMENT:
 						$this->lastComment = $token[1];
 						break;
@@ -1072,16 +1072,16 @@ class APHPTokenizerState extends CComponent {
 							$property->value .= $token[1];
 						}
 						break;
-				}		
-				
+				}
+
 			}
 			else {
-				
+
 				switch($token) {
 					case "=":
 						$this->inPropertyAssignment = true;
 						break;
-					
+
 					case ";":
 						$this->inPropertyAssignment = false;
 						$this->inPropertyDeclaration = false;
@@ -1095,7 +1095,7 @@ class APHPTokenizerState extends CComponent {
 						break;
 				}
 			}
-		
+
 		}
 	}
 	/**
@@ -1108,11 +1108,11 @@ class APHPTokenizerState extends CComponent {
 			$token = $this->getNextToken();
 			if (is_array($token)) {
 				$currentLine = $token[2];
-				
+
 				switch($token[0]) {
-					
+
 					case T_CONST:
-						
+
 						$const = new AClassConstantDoc;
 						$const->startLine = $currentLine;
 						$const->filename = $this->filename;
@@ -1121,7 +1121,7 @@ class APHPTokenizerState extends CComponent {
 						$this->class->constants->add($const->name,$const);
 						// reset the states
 						$this->lastComment = null;
-							
+
 						break;
 					case T_STRING:
 						if ($this->inConstAssignment) {
@@ -1136,16 +1136,16 @@ class APHPTokenizerState extends CComponent {
 							$const->value .= $token[1];
 						}
 						break;
-				}		
-				
+				}
+
 			}
 			else {
-				
+
 				switch($token) {
 					case "=":
 						$this->inConstAssignment = true;
 						break;
-					
+
 					case ";":
 						$this->inConstAssignment = false;
 						$const->endLine = $currentLine;
@@ -1158,11 +1158,11 @@ class APHPTokenizerState extends CComponent {
 						break;
 				}
 			}
-		
+
 		}
 	}
-	
-	
+
+
 	/**
 	 * Gets the next token, or false if there isn't one
 	 * @return mixed The next token, either an array or a character

@@ -1,7 +1,7 @@
 <?php
 /**
  * The main layout for the documentation
- * @uses string $content the content to show
+ * @var string $content the content to show
  */
 ?><!doctype html>
 <!--[if lt IE 7 ]> <html class="no-js ie6" lang="en"> <![endif]-->
@@ -23,7 +23,7 @@
 
   <script src="assets/js/modernizr-1.7.min.js"></script>
   <script src="assets/js/jquery-1.5.1.min.js"></script>
-  
+
 </head>
 
 <body>
@@ -31,19 +31,19 @@
     <header>
     YourApp Documentation
     </header>
-    
+
 	<div id="main" role="main">
  	<nav id='sidebar'>
  		<input id='searchBox' type='text' name='searchbox' placeholder='Search' />
  		<ul id='searchResults'>
- 			
+
  		</ul>
  	</nav>
 	<?php echo $content; ?>
     </div>
     <footer>
     <div class='footer'>
-  
+
 	<p>Copyright &copy; <?php echo date('Y'); ?> by webappier.com<br/>
 	All Rights Reserved.<br/>
 	</p>
@@ -60,7 +60,7 @@
     <script>DD_belatedPNG.fix("img, .png_bg"); // Fix any <img> or .png_bg bg-images. Also, please read goo.gl/mZiyb </script>
   <![endif]-->
 
- 
+
 </div>
 <script src="assets/js/docSearch.js"></script>
   <script src="data.js"></script>
