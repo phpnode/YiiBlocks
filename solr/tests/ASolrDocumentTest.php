@@ -1,5 +1,5 @@
 <?php
-include("common.php"); // include the functionality common to all solr tests
+include_once("common.php"); // include the functionality common to all solr tests
 /**
  * Tests for the {@link ASolrDocument} class
  * @author Charles Pick/PeoplePerHour.com
@@ -42,7 +42,12 @@ class ASolrDocumentTest extends CTestCase {
 	 * Tests the save method
 	 */
 	public function testSave() {
+		$connection = new ASolrConnection();
+		$connection->clientOptions->hostname = SOLR_HOSTNAME;
+		$connection->clientOptions->port = SOLR_PORT;
+		ASolrDocument::$solr = $connection;
 		foreach($this->fixtureData() as $attributes) {
+
 			$doc = new ASolrDocument();
 			$doc->setAttributes($attributes); // should fail because of massive assignment on unsafe attributes
 			$this->assertEquals(array(),$doc->getAttributes());
@@ -50,7 +55,126 @@ class ASolrDocumentTest extends CTestCase {
 			$this->assertEquals(3,count($doc->getAttributes()));
 			$this->assertTrue($doc->save());
 		}
+		$connection->commit();
 	}
+	/**
+	 * Tests the named scope features
+	 */
+	public function testNamedScopes() {
+		$model = ExampleExtendedSolrDocument::model();
+		$model->exampleScope(); // apply the scope
+		$models = $model->findAll();
+		$this->assertEquals(50, count($models));
+	}
+	/**
+	 * Tests the find methods
+	 */
+	public function testFind() {
+		$connection = new ASolrConnection();
+		$connection->clientOptions->hostname = SOLR_HOSTNAME;
+		$connection->clientOptions->port = SOLR_PORT;
+		ASolrDocument::$solr = $connection;
+		$pkList = array();
+		foreach($this->fixtureData() as $attributes) {
+			$criteria = new ASolrCriteria;
+			$criteria->query = "id:".$attributes['id'];
+			$doc = ASolrDocument::model()->find($criteria);
+			$this->assertTrue(is_object($doc));
+			$this->assertTrue($doc instanceof ASolrDocument);
+			foreach($attributes as $attribute => $value) {
+				$this->assertEquals($value,$doc->{$attribute});
+			}
+			$pkList[$doc->getPrimaryKey()] = $attributes;
+		}
+		$criteria = new ASolrCriteria();
+		$criteria->limit = 100;
+		$criteria->addInCondition("id",array_keys($pkList));
+		$models = ASolrDocument::model()->findAll($criteria);
+		$this->assertEquals(count($pkList),count($models));
+		foreach($models as $doc) {
+			foreach($pkList[$doc->getPrimaryKey()] as $attribute => $value) {
+				$this->assertEquals($value,$doc->{$attribute});
+			}
+		}
+	}
+
+	/**
+	 * Tests the find by pk methods
+	 */
+	public function testFindByPk() {
+		$connection = new ASolrConnection();
+		$connection->clientOptions->hostname = SOLR_HOSTNAME;
+		$connection->clientOptions->port = SOLR_PORT;
+		ASolrDocument::$solr = $connection;
+		$pkList = array();
+		foreach($this->fixtureData() as $attributes) {
+			$doc = ASolrDocument::model()->findByPk($attributes['id']);
+			$this->assertTrue(is_object($doc));
+			$this->assertTrue($doc instanceof ASolrDocument);
+			foreach($attributes as $attribute => $value) {
+				$this->assertEquals($value,$doc->{$attribute});
+			}
+			$pkList[$doc->getPrimaryKey()] = $attributes;
+		}
+		$criteria = new ASolrCriteria();
+		$criteria->limit = 100;
+		$models = ASolrDocument::model()->findAllByPk(array_keys($pkList),$criteria);
+		$this->assertEquals(count($pkList),count($models));
+		foreach($models as $doc) {
+			foreach($pkList[$doc->getPrimaryKey()] as $attribute => $value) {
+				$this->assertEquals($value,$doc->{$attribute});
+			}
+		}
+	}
+
+	/**
+	 * Tests the find by attributes methods
+	 */
+	public function testFindByAttributes() {
+		$connection = new ASolrConnection();
+		$connection->clientOptions->hostname = SOLR_HOSTNAME;
+		$connection->clientOptions->port = SOLR_HOSTNAME;
+		ASolrDocument::$solr = $connection;
+		foreach($this->fixtureData() as $attributes) {
+			$doc = ASolrDocument::model()->findByAttributes($attributes);
+			$this->assertTrue(is_object($doc));
+			$this->assertTrue($doc instanceof ASolrDocument);
+			foreach($attributes as $attribute => $value) {
+				$this->assertEquals($value,$doc->{$attribute});
+			}
+		}
+		foreach($this->fixtureData() as $attributes) {
+			$models = ASolrDocument::model()->findAllByAttributes($attributes);
+			$this->assertEquals(1,count($models));
+			$doc = array_shift($models);
+			$this->assertTrue(is_object($doc));
+			$this->assertTrue($doc instanceof ASolrDocument);
+			foreach($attributes as $attribute => $value) {
+				$this->assertEquals($value,$doc->{$attribute});
+			}
+		}
+	}
+	/**
+	 * Tests the delete method
+	 */
+	public function testDelete() {
+		$connection = new ASolrConnection();
+		$connection->clientOptions->hostname = SOLR_HOSTNAME;
+		$connection->clientOptions->port = SOLR_PORT;
+		ASolrDocument::$solr = $connection;
+		foreach($this->fixtureData() as $attributes) {
+			$doc = ASolrDocument::model()->findByPk($attributes['id']);
+			$this->assertTrue(is_object($doc));
+			$this->assertTrue($doc->delete());
+		}
+		$connection->commit();
+		// now check if they were really deleted
+		foreach($this->fixtureData() as $attributes) {
+			$doc = ASolrDocument::model()->findByPk($attributes['id']);
+			$this->assertFalse(is_object($doc));
+		}
+	}
+
 
 	/**
 	 * Generates 50 arrays of attributes for fixtures
@@ -79,4 +203,24 @@ class ExampleExtendedSolrDocument extends ASolrDocument {
 	 * @var string
 	 */
 	public $incubationdate_dt;
+
+	/**
+	 * An example of a solr named scope
+	 * @return ExampleExtendedSolrDocument $this with the scope applied
+	 */
+	public function exampleScope() {
+		$criteria = new ASolrCriteria();
+		$criteria->setLimit(100);
+		$criteria->setQuery('name:test');
+		$this->getSolrCriteria()->mergeWith($criteria);
+		return $this;
+	}
+	/**
+	 * Gets the static model
+	 * @param string $className the model class to instantiate
+	 * @return ExampleExtendedSolrDocument the nidek
+	 */
+	public static function model($className = __CLASS__) {
+		return parent::model($className);
+	}
 }

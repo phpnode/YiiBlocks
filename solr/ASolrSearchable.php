@@ -2,7 +2,7 @@
 /**
  * Allows easy indexing and searching for Active Records
  * @package packages.solr
- * @author Charles Pick
+ * @author Charles Pick / PeoplePerHour.com
  */
 class ASolrSearchable extends CActiveRecordBehavior {
 	/**
@@ -12,12 +12,6 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 */
 	public $indexAttributes;
 
-	/**
-	 * The mapping for this index.
-	 * Defaults to null meaning solr will automatically create a mapping
-	 * @var array
-	 */
-	public $mapping;
 
 	/**
 	 * The name of the solr application component,

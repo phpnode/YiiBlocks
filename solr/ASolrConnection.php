@@ -15,6 +15,12 @@ class ASolrConnection extends CApplicationComponent {
 	 * @var CAttributeCollection
 	 */
 	protected $_clientOptions;
+
+	/**
+	 * Holds the last received query response
+	 * @var ASolrQueryResponse
+	 */
+	protected $_lastQueryResponse;
 	/**
 	 * Sets the solr client
 	 * @param SolrClient $client the solr client
@@ -86,8 +92,10 @@ class ASolrConnection extends CApplicationComponent {
 					$document[$key] = $value->getInputDocument();
 				}
 			}
+			Yii::trace('Adding '.count($document)." documents to the solr index",'packages.solr.ASolrConnection');
 			return $this->getClient()->addDocuments($document)->success();
 		}
+		Yii::trace('Adding 1 document to the solr index','packages.solr.ASolrConnection');
 		$response = $this->getClient()->addDocument($document);
 		return $response->success();
 	}
@@ -109,8 +117,10 @@ class ASolrConnection extends CApplicationComponent {
 					$document[$key] = $value->getPrimaryKey();
 				}
 			}
+			Yii::trace('Deleting From Solr IDs: '.implode(", ",$document),'packages.solr.ASolrConnection');
 			return $this->getClient()->deleteByIds($document)->success();
 		}
+		Yii::trace('Deleting From Solr ID: '.$document,'packages.solr.ASolrConnection');
 		return $this->getClient()->deleteById($document)->success();
 	}
 	/**
@@ -120,8 +130,50 @@ class ASolrConnection extends CApplicationComponent {
 	public function commit() {
 		return $this->getClient()->commit()->success();
 	}
+	/**
+	 * Makes a solr search request
+	 * @param ASolrCriteria $criteria the search criteria
+	 * @param string $modelClass the name of the model to use when instantiating results
+	 * @return ASolrQueryResponse the response from solr
+	 */
+	public function search(ASolrCriteria $criteria, $modelClass = "ASolrDocument") {
+		if (is_object($modelClass)) {
+			$modelClass = get_class($modelClass);
+		}
+		$c = new ASolrCriteria();
+		$c->mergeWith($criteria);
+		Yii::trace('Querying Solr: '.((string) $c),'packages.solr.ASolrConnection');
+		$this->_lastQueryResponse = new ASolrQueryResponse($this->rawSearch($c),$c,$modelClass);
+		return $this->_lastQueryResponse;
+	}
 
-	public function search(ASolrCriteria $criteria) {
-		return new ASolrQueryResponse($this->getClient()->query($criteria)->getResponse(),$criteria);
+	/**
+	 * Counts the number of rows that match the given criteria
+	 * @param ASolrCriteria $criteria the search criteria
+	 * @return integer the number of matching rows
+	 */
+	public function count(ASolrCriteria $criteria) {
+		$c = new ASolrCriteria();
+		$c->mergeWith($criteria);
+		$c->setLimit(0);
+		Yii::trace('Counting Results from Solr: '.((string) $c),'packages.solr.ASolrConnection');
+		return $this->rawSearch($c)->response->numFound;
+	}
+
+	/**
+	 * Makes a search query with the given criteria and returns the raw solr object.
+	 * Usually you should use the search() method instead.
+	 * @param ASolrCriteria $criteria the search criteria
+	 * @return SolrObject the response from solr
+	 */
+	protected function rawSearch(ASolrCriteria $criteria) {
+		return $this->getClient()->query($criteria)->getResponse();
+	}
+	/**
+	 * Gets the last received solr query response
+	 * @return ASolrQueryResponse the last query response, or null if there are no responses yet
+	 */
+	public function getLastQueryResponse() {
+		return $this->_lastQueryResponse;
 	}
 }

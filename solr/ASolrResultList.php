@@ -15,6 +15,6 @@ class ASolrResultList extends CTypedList {
 	 * Overrides the parent to specify the correct type
 	 */
 	public function __construct() {
-		parent::__construct("ASolrResult");
+		parent::__construct("ASolrDocument");
 	}
 }

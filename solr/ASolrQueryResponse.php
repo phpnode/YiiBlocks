@@ -6,6 +6,11 @@
  */
 class ASolrQueryResponse extends CComponent {
 	/**
+	 * The class name of the model that represents the results
+	 * @var string
+	 */
+	protected $_modelClass;
+	/**
 	 * Holds the solr query response
 	 * @var SolrObject
 	 */
@@ -46,10 +51,12 @@ class ASolrQueryResponse extends CComponent {
 	 * Constructor.
 	 * @param SolrObject $solrObject the response from solr
 	 * @param ASolrCriteria $criteria the search criteria
+	 * @param string $modelClass the name of the results model class
 	 */
-	public function __construct($solrObject, ASolrCriteria $criteria) {
+	public function __construct($solrObject, ASolrCriteria $criteria, $modelClass = "ASolrDocument") {
 		$this->_solrObject = $solrObject;
 		$this->_criteria = $criteria;
+		$this->_modelClass = $modelClass;
 	}
 
 	/**
@@ -114,13 +121,15 @@ class ASolrQueryResponse extends CComponent {
 		}
 		foreach($this->getSolrObject()->facet_counts as $facetType => $item) {
 			foreach($item as $facetName => $values) {
-				if (!is_array($values)) {
+				if (is_object($values)) {
+					$values = (array) $values;
+				}
+				elseif (!is_array($values)) {
 					$values = array("value" => $values);
 				}
 				$facet = new ASolrFacet($values);
 				$facet->name = $facetName;
 				$facet->type = $facetType;
-
 				switch ($facetType) {
 					case ASolrFacet::TYPE_DATE:
 						$this->_dateFacets[$facet->name] = $facet;
@@ -155,17 +164,17 @@ class ASolrQueryResponse extends CComponent {
 	 */
 	public function getResults()
 	{
-		#return $this->_solrObject;
+		$modelClass = $this->_modelClass;
 		if ($this->_results === null) {
 			$this->_results = new ASolrResultList;
 			$this->_results->total = $this->_solrObject->response->numFound;
-			foreach($this->_solrObject->response->docs as $n => $row) {
-				$result = new ASolrResult();
-				foreach($row as $attribute => $value) {
-					$result->{$attribute} = $value;
+			if ($this->_results->total > 0) {
+				foreach($this->_solrObject->response->docs as $n => $row) {
+					$result = $modelClass::model()->populateRecord($row);
+					$result->setPosition($n + $this->_criteria->getOffset());
+					$result->setSolrResponse($this);
+					$this->_results->add($result);
 				}
-				$result->setPosition($n + $this->_criteria->getOffset());
-				$this->_results->add($result);
 			}
 		}
 		return $this->_results;

@@ -1,11 +1,26 @@
 <?php
-
+/**
+ * A data provider that obtains data from solr
+ * @author Charles Pick / PeoplePerHour.com
+ * @package packages.solr
+ */
 class ASolrDataProvider extends CActiveDataProvider {
 	/**
 	 * Holds the key attribute
 	 * @var string
 	 */
 	public $keyAttribute = "position";
+
+	/**
+	 * Holds the response from solr
+	 * @var ASolrQueryResponse
+	 */
+	protected $_solrQueryResponse;
+
+	/**
+	 * The solr criteria
+	 * @var ASolrCriteria
+	 */
 	protected $_criteria;
 	/**
 	 * Constructor.
@@ -15,7 +30,7 @@ class ASolrDataProvider extends CActiveDataProvider {
 	 */
 	public function __construct($modelClass,$config=array())
 	{
-		if($modelClass instanceof ASolrDocumentType) {
+		if($modelClass instanceof ASolrDocument) {
 			$this->modelClass=get_class($modelClass);
 			$this->model=$modelClass;
 
@@ -25,7 +40,12 @@ class ASolrDataProvider extends CActiveDataProvider {
 			}
 		}
 		else {
-			parent::__construct($modelClass,$config);
+			$this->modelClass=$modelClass;
+			$this->model=ASolrDocument::model($this->modelClass);
+		}
+		$this->setId($this->modelClass);
+		foreach($config as $key=>$value) {
+			$this->$key=$value;
 		}
 	}
 	/**
@@ -54,7 +74,8 @@ class ASolrDataProvider extends CActiveDataProvider {
 	 */
 	protected function fetchData()
 	{
-		$criteria=clone $this->getCriteria();
+		$criteria=new ASolrCriteria();
+		$criteria->mergeWith($this->getCriteria());
 
 		if(($pagination=$this->getPagination())!==false)
 		{
@@ -62,13 +83,12 @@ class ASolrDataProvider extends CActiveDataProvider {
 			$pagination->applyLimit($criteria);
 		}
 
+		$data=$this->model->findAll($criteria);
+		$this->_solrQueryResponse = $this->model->getSolrConnection()->getLastQueryResponse();
 
-
-		$data=$this->model->search($criteria);
 		if ($pagination !== false) {
-			$pagination->setItemCount($data->total);
+			$pagination->setItemCount(count($data));
 		}
-		$this->setTotalItemCount($data->total);
 		return $data;
 	}
 
@@ -79,5 +99,51 @@ class ASolrDataProvider extends CActiveDataProvider {
 	protected function calculateTotalItemCount()
 	{
 		return $this->model->count($this->getCriteria());
+	}
+
+	/**
+	 * Gets an array of date facets that belong to this query response
+	 * @return ASolrFacet[]
+	 */
+	public function getDateFacets()
+	{
+		if ($this->_solrQueryResponse === null) {
+			$this->getData();
+		}
+		return $this->_solrQueryResponse->getDateFacets();
+	}
+
+	/**
+	 * Gets an array of field facets that belong to this query response
+	 * @return ASolrFacet[]
+	 */
+	public function getFieldFacets()
+	{
+		if ($this->_solrQueryResponse === null) {
+			$this->getData();
+		}
+		return $this->_solrQueryResponse->getFieldFacets();
+	}
+	/**
+	 * Gets an array of query facets that belong to this query response
+	 * @return ASolrFacet[]
+	 */
+	public function getQueryFacets()
+	{
+		if ($this->_solrQueryResponse === null) {
+			$this->getData();
+		}
+		return $this->_solrQueryResponse->getQueryFacets();
+	}
+	/**
+	 * Gets an array of range facets that belong to this query response
+	 * @return ASolrFacet[]
+	 */
+	public function getRangeFacets()
+	{
+		if ($this->_solrQueryResponse === null) {
+			$this->getData();
+		}
+		return $this->_solrQueryResponse->getRangeFacets();
 	}
 }

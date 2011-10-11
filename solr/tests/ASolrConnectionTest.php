@@ -1,5 +1,5 @@
 <?php
-include("common.php"); // include the functionality common to all solr tests
+include_once("common.php"); // include the functionality common to all solr tests
 /**
  * Tests for the {@link ASolrConnection} class
  * @author Charles Pick/PeoplePerHour.com
@@ -12,8 +12,8 @@ class ASolrConnectionTest extends CTestCase {
 	 */
 	public function testClientOptions() {
 		$connection = new ASolrConnection();
-		$connection->clientOptions->hostname = "localhost";
-		$connection->clientOptions->port = 8983;
+		$connection->clientOptions->hostname = SOLR_HOSTNAME;
+		$connection->clientOptions->port = SOLR_PORT;
 		$client = $connection->getClient();
 		$this->assertTrue($client instanceof SolrClient);
 		$connection->clientOptions = array();
@@ -25,8 +25,8 @@ class ASolrConnectionTest extends CTestCase {
 	 */
 	public function testIndexAndDelete() {
 		$connection = new ASolrConnection();
-		$connection->clientOptions->hostname = "localhost";
-		$connection->clientOptions->port = 8983;
+		$connection->clientOptions->hostname = SOLR_HOSTNAME;
+		$connection->clientOptions->port = SOLR_PORT;
 		$doc = new SolrInputDocument();
 
 		$doc->addField('id', 334455);
@@ -55,8 +55,8 @@ class ASolrConnectionTest extends CTestCase {
 	 */
 	public function testFacetedSearch() {
 		$connection = new ASolrConnection();
-		$connection->clientOptions->hostname = "localhost";
-		$connection->clientOptions->port = 8983;
+		$connection->clientOptions->hostname = SOLR_HOSTNAME;
+		$connection->clientOptions->port = SOLR_PORT;
 		$doc = new SolrInputDocument();
 
 		$doc->addField('id', 334455);

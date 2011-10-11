@@ -1,5 +1,5 @@
 <?php
-include("common.php"); // include the functionality common to all solr tests
+include_once("common.php"); // include the functionality common to all solr tests
 /**
  * Tests for the {@link ASolrQueryResponse} class
  * @author Charles Pick/PeoplePerHour.com
