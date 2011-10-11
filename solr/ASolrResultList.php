@@ -1,7 +1,7 @@
 <?php
 /**
  * Holds a list of solr results
- * @author Charles Pick
+ * @author Charles Pick / PeoplePerHour.com
  * @package packages.solr
  */
 class ASolrResultList extends CTypedList {

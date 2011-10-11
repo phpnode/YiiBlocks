@@ -1,7 +1,7 @@
 <?php
 /**
  * A simple wrapper for Solr
- * @author Charles Pick
+ * @author Charles Pick / PeoplePerHour.com
  * @package packages.solr
  */
 class ASolrConnection extends CApplicationComponent {

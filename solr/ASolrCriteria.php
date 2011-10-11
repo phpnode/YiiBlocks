@@ -2,7 +2,7 @@
 /**
  * Represents an solr query criteria
  * @package packages.solr
- * @author Charles Pick
+ * @author Charles Pick / PeoplePerHour.com
  */
 class ASolrCriteria extends SolrQuery {
 
