@@ -1,7 +1,28 @@
+#### Configuring your solr connection
+
+Before we can use solr, we must configure a connection to use.
+In the application config, add the following
+<pre>
+"components" => array(
+	...
+	"solr" => array(
+	 	"class" => "packages.solr.ASolrConnection",
+	 	"clientOptions" => array(
+	 		"hostname" => "localhost",
+	 		"port" => 8983,
+	 	),
+	 ),
+),
+</pre>
+
+This will configure an application component called "solr".
+If you're dealing with more than one index, define a new solr connection for each one, giving each a unique name.
+
+
 #### Indexing a document with solr
 
 
-To add a document to solr we use the {@link ASolrDocument] class.
+To add a document to solr we use the {@link ASolrDocument} class.
 Example:
 <pre>
 $doc = new ASolrDocument;
