@@ -30,7 +30,7 @@ $doc->id = 123;
 $doc->name = "test document";
 $doc->save(); // adds the document to solr
 </pre>
-Remember - Your chances won't appear in solr until a commit occurs.
+Remember - Your changes won't appear in solr until a commit occurs.
 If you need your data to appear immediately, use the following syntax:
 <pre>
 $doc->getSolrConnection()->commit();
@@ -91,6 +91,19 @@ $criteria = new ASolrCriteria;
 $criteria->query = "*"; // match everything
 $total = Job::model()->count($criteria); // the total number of jobs in the index
 </pre>
+
+#### Using data providers
+
+Often we need to use a data provider to retrieve paginated lists of results.
+Example:
+<pre>
+$dataProvider = new ASolrDataProvider(Job::model());
+$dataProvider->criteria->query = "*";
+foreach($dataProvider->getData() as $job) {
+	echo $job->title."<br />";
+}
+</pre>
+
 
 #### Removing items from the index
 To remove an item from the index, use the following syntax:
