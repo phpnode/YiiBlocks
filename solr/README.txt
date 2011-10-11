@@ -1,22 +1,22 @@
-<h2>Indexing a document with solr</h2>
+#### Indexing a document with solr
 
 
-<p>To add a document to solr we use the {@link ASolrDocument] class.</p>
-<p>Example:</p>
+To add a document to solr we use the {@link ASolrDocument] class.
+Example:
 <pre>
 $doc = new ASolrDocument;
 $doc->id = 123;
 $doc->name = "test document";
 $doc->save(); // adds the document to solr
 </pre>
-<p>Remember - Your chances won't appear in solr until a commit occurs.
-If you need your data to appear immediately, use the following syntax:</p>
+Remember - Your chances won't appear in solr until a commit occurs.
+If you need your data to appear immediately, use the following syntax:
 <pre>
 $doc->getSolrConnection()->commit();
 </pre>
-<p>If you need to deal with multiple solr indexes, it's often best to define a model for
-each index you're dealing with. To do this we extend ASolrDocument in the same way that we would extend CActiveRecord when defining a model</p>
-<p>For example:</p>
+If you need to deal with multiple solr indexes, it's often best to define a model for
+each index you're dealing with. To do this we extend ASolrDocument in the same way that we would extend CActiveRecord when defining a model
+For example:
 <pre>
 class Job extends ASolrDocument {
 	/**
@@ -34,10 +34,10 @@ class Job extends ASolrDocument {
 	}
 }
 </pre>
-<br /><hr /><br />
-<h2>Searching solr</h2>
 
-<p>To find documents in solr, we use the following methods:</p>
+#### Searching solr
+
+To find documents in solr, we use the following methods:
 <ul>
 	<li>{@link ASolrDocument::find()}</li>
 	<li>{@link ASolrDocument::findAll()}</li>
@@ -47,32 +47,32 @@ class Job extends ASolrDocument {
 	<li>{@link ASolrDocument::findAllByPk()}</li>
 </ul>
 
-<p>The most useful of these methods are find() and findAll(). Both these methods take a criteria parameter, this criteria parameter should be an instance of {@link ASolrCriteria}.</p>
-<p>Example: Find all documents with the name "test"</p>
+The most useful of these methods are find() and findAll(). Both these methods take a criteria parameter, this criteria parameter should be an instance of {@link ASolrCriteria}.
+Example: Find all documents with the name "test"
 <pre>
 $criteria = new ASolrCriteria;
 $criteria->query = "name:test"; // lucene query syntax
 $docs = ASolrDocument::model()->findAll($criteria);
 </pre>
-<p>Alternative method:</p>
+Alternative method:
 <pre>
 $docs = ASolrDocument::model()->findAllByAttributes(array("name" => "test"));
 </pre>
 
-<br />
-<p>Example: Find a job with the unique id of 123</p>
+
+Example: Find a job with the unique id of 123
 <pre>
 $job = Job::model()->findByPk(123);
 </pre>
-<p>Example: Find the total number of jobs in the index</p>
+Example: Find the total number of jobs in the index
 <pre>
 $criteria = new ASolrCriteria;
 $criteria->query = "*"; // match everything
 $total = Job::model()->count($criteria); // the total number of jobs in the index
 </pre>
-<br /><br />
-<h2>Removing items from the index</h2>
-<p>To remove an item from the index, use the following syntax:</p>
+
+#### Removing items from the index
+To remove an item from the index, use the following syntax:
 <pre>
 $job = Job::model()->findByPk(234);
 $job->delete();
