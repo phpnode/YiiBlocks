@@ -100,7 +100,7 @@ Example:
 $dataProvider = new ASolrDataProvider(Job::model());
 $dataProvider->criteria->query = "*";
 foreach($dataProvider->getData() as $job) {
-	echo $job->title."<br />";
+	echo $job->title."\n";
 }
 </pre>
 
