@@ -9,10 +9,11 @@ class AClassDeclarationStateTest extends CTestCase {
 		$reader = new APHPTokenReader(token_get_all($code));
 		$curlyBrackets = new CStack();
 		$lastToken = null;
+		try {
 		while(($token = $reader->read()) !== false) {
 
 			if (is_array($token)) {
-				echo token_name($token[0])." - ".$token[1]."\n";
+				#echo token_name($token[0])." - ".$token[1]."\n";
 				$lastToken = $token;
 
 				switch ($token[0]) {
@@ -20,16 +21,20 @@ class AClassDeclarationStateTest extends CTestCase {
 						$this->assertEquals(APHPTokenReaderState::CLASS_DECLARATION,$reader->getState()->getName());
 						break;
 					case T_PUBLIC:
-						$this->assertEquals(APHPTokenReaderState::PUBLIC_MEMBER_DECLARATION,$reader->getState()->getName());
+						$this->assertEquals(APHPTokenReaderState::MEMBER_DECLARATION,$reader->getState()->getName());
 						break;
 				}
 			}
 			else {
-				echo $token."\n";
+				#echo $token."\n";
 				switch ($token) {
 
 				}
 			}
+		}
+		}
+		catch (TESTEsx $e) {
+			echo implode(",",array_reverse((array) $reader->getTransitionHistory()->toArray()));
 		}
 	}
 	/**
@@ -41,6 +46,8 @@ class AClassDeclarationStateTest extends CTestCase {
 <?php
 class testClass {
 	public \$publicProperty = "test";
+	protected function testMethodNoParams() {
+	}
 
 }
 namespace testNamespace2 {

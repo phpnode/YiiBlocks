@@ -32,73 +32,73 @@ class AState extends CComponent {
 	 * Invoked before the state is transitioned to
 	 * @return boolean true if the event is valid and the transition should be allowed to continue
 	 */
-	public function beforeTransitionTo() {
+	public function beforeEnter() {
 		$transition = new AStateTransition($this);
 		$transition->to = $this;
 		$transition->from = $this->_owner->getState();
-		$this->onBeforeTransitionTo($transition);
+		$this->onBeforeEnter($transition);
 		return $transition->isValid;
 	}
 	/**
 	 * This event is raised before the state is transitioned to
 	 * @param AStateTransition $transition the state transition
 	 */
-	public function onBeforeTransitionTo($transition) {
-		$this->raiseEvent("onBeforeTransitionTo",$transition);
+	public function onBeforeEnter($transition) {
+		$this->raiseEvent("onBeforeEnter",$transition);
 	}
 
 	/**
 	 * Invoked after the state is transitioned to
 	 * @param AState $from The state we're transitioning from
 	 */
-	public function afterTransitionTo(AState $from) {
+	public function afterEnter(AState $from) {
 		$transition = new AStateTransition($this);
 		$transition->to = $this;
 		$transition->from = $from;
-		$this->onAfterTransitionTo($transition);
+		$this->onAfterEnter($transition);
 	}
 	/**
 	 * This event is raised after the state is transitioned to
 	 * @param AStateTransition $transition the state transition
 	 */
-	public function onAfterTransitionTo($transition) {
-		$this->raiseEvent("onAfterTransitionTo",$transition);
+	public function onAfterEnter($transition) {
+		$this->raiseEvent("onAfterEnter",$transition);
 	}
 	/**
 	 * Invoked before the state is transitioned from
 	 * @param AState $toState The state we're transitioning to
 	 * @return boolean true if the event is valid and the transition should be allowed to continue
 	 */
-	public function beforeTransitionFrom(AState $toState) {
+	public function beforeExit(AState $toState) {
 		$transition = new AStateTransition($this);
 		$transition->to = $toState;
 		$transition->from = $this;
-		$this->onBeforeTransitionFrom($transition);
+		$this->onBeforeExit($transition);
 		return $transition->isValid;
 	}
 	/**
 	 * This event is raised before the state is transitioned from
 	 * @param AStateTransition $transition the state transition
 	 */
-	public function onBeforeTransitionFrom($transition) {
-		$this->raiseEvent("onBeforeTransitionFrom",$transition);
+	public function onBeforeExit($transition) {
+		$this->raiseEvent("onBeforeExit",$transition);
 	}
 
 	/**
 	 * Invoked after the state is transitioned from
 	 */
-	public function afterTransitionFrom() {
+	public function afterExit() {
 		$transition = new AStateTransition($this);
 		$transition->from = $this;
 		$transition->to = $this->_owner->getState();
-		$this->onAfterTransitionFrom($transition);
+		$this->onAfterExit($transition);
 	}
 	/**
 	 * This event is raised after the state is transitioned from
 	 * @param AStateTransition $transition the state transition
 	 */
-	public function onAfterTransitionFrom($transition) {
-		$this->raiseEvent("onAfterTransitionFrom",$transition);
+	public function onAfterExit($transition) {
+		$this->raiseEvent("onAfterExit",$transition);
 	}
 
 	/**

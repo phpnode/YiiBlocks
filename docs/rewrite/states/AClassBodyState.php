@@ -16,23 +16,33 @@ class AClassBodyState extends APHPTokenReaderState {
 			case T_CONST:
 				$owner->transition(self::CONST_MEMBER_DECLARATION);
 				break;
+			case T_VAR:
 			case T_PUBLIC:
-				$owner->transition(self::PUBLIC_MEMBER_DECLARATION);
+				$owner->transition(self::MEMBER_DECLARATION);
+				$owner->getState()->isPublic = true;
 				break;
 			case T_PROTECTED:
-				$owner->transition(self::PROTECTED_MEMBER_DECLARATION);
+				$owner->transition(self::MEMBER_DECLARATION);
+				$owner->getState()->isProtected = true;
 				break;
 			case T_PRIVATE:
-				$owner->transition(self::PRIVATE_MEMBER_DECLARATION);
+				$owner->transition(self::MEMBER_DECLARATION);
+				$owner->getState()->isPrivate = true;
 				break;
 			case T_STATIC:
-				$owner->transition(self::STATIC_MEMBER_DECLARATION);
+				$owner->transition(self::MEMBER_DECLARATION);
+				$owner->getState()->isStatic = true;
 				break;
 			case T_FINAL:
-				$owner->transition(self::FINAL_MEMBER_DECLARATION);
+				$owner->transition(self::MEMBER_DECLARATION);
+				$owner->getState()->isFinal = true;
 				break;
 			case T_ABSTRACT:
-				$owner->transition(self::ABSTRACT_MEMBER_DECLARATION);
+				$owner->transition(self::MEMBER_DECLARATION);
+				$owner->getState()->isAbstract = true;
+				break;
+			case T_FUNCTION:
+				$owner->transition(self::METHOD_DECLARATION);
 				break;
 		}
 	}

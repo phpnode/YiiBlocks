@@ -33,6 +33,27 @@ class AStateMachine extends CBehavior implements IApplicationComponent {
 	public $defaultStateName;
 
 	/**
+	 * Whether to track state transition history or not.
+	 * This is set to false by default.
+	 * @var boolean
+	 */
+	public $enableTransitionHistory = false;
+
+	/**
+	 * The maximum size of the state history
+	 * This is useful when performing lots of transitions.
+	 * Defaults to null, meaning there is no maximum history size
+	 * @var integer|null
+	 */
+	public $maximumTransitionHistorySize;
+
+	/**
+	 * Holds the transition history
+	 * @var AFixedStack
+	 */
+	protected $_transitionHistory;
+
+	/**
 	 * The name of the current state
 	 * @var string
 	 */
@@ -184,6 +205,9 @@ class AStateMachine extends CBehavior implements IApplicationComponent {
 			return false;
 		}
 		$this->setStateName($to);
+		if ($this->enableTransitionHistory) {
+			$this->getTransitionHistory()->push($to);
+		}
 		$this->afterTransition($fromState);
 		return true;
 	}
@@ -194,7 +218,7 @@ class AStateMachine extends CBehavior implements IApplicationComponent {
 	 * @return boolean true if the event is valid and the transition should be allowed to continue
 	 */
 	public function beforeTransition(AState $toState) {
-		if (!$this->getState()->beforeTransitionFrom($toState) || !$toState->beforeTransitionTo()) {
+		if (!$this->getState()->beforeExit($toState) || !$toState->beforeEnter()) {
 			return false;
 		}
 		$transition = new AStateTransition($this);
@@ -216,8 +240,8 @@ class AStateMachine extends CBehavior implements IApplicationComponent {
 	 * @param AState $from The state we're transitioning from
 	 */
 	public function afterTransition(AState $fromState) {
-		$fromState->afterTransitionFrom();
-		$this->getState()->afterTransitionTo($fromState);
+		$fromState->afterExit();
+		$this->getState()->afterEnter($fromState);
 
 		$transition = new AStateTransition($this);
 		$transition->to = $this->getState();
@@ -229,7 +253,7 @@ class AStateMachine extends CBehavior implements IApplicationComponent {
 	 * @param AStateTransition $transition the state transition
 	 */
 	public function onAfterTransition($transition) {
-		$this->raiseEvent("onAfterTransitionTo",$transition);
+		$this->raiseEvent("onAfterEnter",$transition);
 	}
 	/**
 	 * Returns a property value based on its name.
@@ -319,5 +343,19 @@ class AStateMachine extends CBehavior implements IApplicationComponent {
 	 */
 	public function is($stateName) {
 		return $this->getStateName() == $stateName;
+	}
+
+	/**
+	 * Gets the transition history
+	 * @return AFixedStack the transition history
+	 */
+	public function getTransitionHistory()
+	{
+		if ($this->_transitionHistory === null) {
+			$this->_transitionHistory = Yii::createComponent(array(
+																  "class" => "packages.fixedStack.AFixedStack"
+															 ),$this->maximumTransitionHistorySize);
+		}
+		return $this->_transitionHistory;
 	}
 }

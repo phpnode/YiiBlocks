@@ -139,12 +139,12 @@ class ExampleIntermediateState extends AState {
 	 * @param AState $fromState the state we're transitioning from
 	 * @return boolean whether the transition should continue
 	 */
-	public function beforeTransitionTo() {
+	public function beforeEnter() {
 		$fromState = $this->_owner->getState();
 		if ($fromState->getName() == "enabled") {
 			return false;
 		}
-		return parent::beforeTransitionTo();
+		return parent::beforeEnter();
 	}
 }
 

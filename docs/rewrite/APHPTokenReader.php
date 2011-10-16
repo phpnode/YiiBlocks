@@ -7,6 +7,17 @@
 class APHPTokenReader extends AStateMachine {
 
 	/**
+	 * Whether to track state transition history or not.
+	 * @var boolean
+	 */
+	public $enableTransitionHistory = true;
+
+	/**
+	 * The maximum size of the state history
+	 * @var integer|null
+	 */
+	public $maximumTransitionHistorySize = 20;
+	/**
 	 * Holds a stack of curly brackets {}
 	 * @var CStack
 	 */
@@ -74,9 +85,16 @@ class APHPTokenReader extends AStateMachine {
 		$this->addState(new ANamespaceCurlyBodyState(APHPTokenReaderState::NAMESPACE_CURLY_BODY,$this));
 		$this->addState(new AClassDeclarationState(APHPTokenReaderState::CLASS_DECLARATION,$this));
 		$this->addState(new AClassBodyState(APHPTokenReaderState::CLASS_BODY,$this));
-		$this->addState(new APublicMemberDeclarationState(APHPTokenReaderState::PUBLIC_MEMBER_DECLARATION,$this));
+		$this->addState(new APropertyDeclarationState(APHPTokenReaderState::PROPERTY_DECLARATION,$this));
+		$this->addState(new AValueAssignmentState(APHPTokenReaderState::VALUE_ASSIGNMENT,$this));
+		$this->addState(new AMethodDeclarationState(APHPTokenReaderState::METHOD_DECLARATION,$this));
+		$this->addState(new AMemberDeclarationState(APHPTokenReaderState::MEMBER_DECLARATION,$this));
 	}
 
+	public function afterTransition($fromState) {
+		parent::afterTransition($fromState);
+		echo $fromState->getName()." - ".$this->getState()->getName()." (".$this->currentLine.")\n";
+	}
 
 	public function read() {
 		$token = next($this->tokens);
@@ -106,6 +124,9 @@ class APHPTokenReader extends AStateMachine {
 					break;
 				case ";":
 					$this->getState()->endStatement();
+					break;
+				case "=":
+					$this->getState()->startAssignment();
 					break;
 			}
 		}

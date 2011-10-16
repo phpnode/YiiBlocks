@@ -6,145 +6,111 @@
  */
 class ASolrSearchable extends CActiveRecordBehavior {
 	/**
-	 * The model attributes that should be indexed,
-	 * defaults to null meaning index all attributes
+	 * The class name of the solr document to instantiate
+	 * @var string
+	 */
+	public $documentClass = "ASolrDocument";
+	/**
+	 * The solr document associated with this model instance
+	 * @var ASolrDocument
+	 */
+	protected $_solrDocument;
+
+	/**
+	 * The solr criteria associated with this model instance
+	 * @var ASolrCriteria
+	 */
+	protected $_solrCriteria;
+
+	/**
+	 * The attributes that should be indexed in solr
 	 * @var array
 	 */
-	public $indexAttributes;
-
-
-	/**
-	 * The name of the solr application component,
-	 * defaults to "solr"
-	 * @var string
-	 */
-	public $componentID  = "solr";
-
+	protected $_attributes;
 
 	/**
-	 * The name of the index to use for storing the items.
-	 * Defaults to null meaning use the value of {@link ASolr::$defaultIndex}
-	 * @var string
+	 * Sets the attributes that should be indexed in solr
+	 * @param array $attributes
 	 */
-	public $indexName;
-
-	/**
-	 * The type to use when storing the items.
-	 * Defaults to null meaning use the class name of the behavior owner.
-	 * @var string
-	 */
-	public $type;
-
-	/**
-	 * Triggered after the model saves, this is where we index the item
-	 * @see CActiveRecordBehavior::afterSave()
-	 */
-	public function afterSave() {
-
-		return true;
+	public function setAttributes($attributes)
+	{
+		$this->_attributes = $attributes;
 	}
 
 	/**
-	 * Triggered after the model is deleted, this is where we de-index the item
-	 * @see CActiveRecordBehavior::afterDelete()
+	 * Gets the attributes that should be indexed in solr
+	 * @return array
 	 */
-	public function afterDelete() {
-
-		return true;
+	public function getAttributes()
+	{
+		if ($this->_attributes === null) {
+			$this->_attributes = $this->getOwner()->attributeNames();
+		}
+		return $this->_attributes;
 	}
 
 	/**
-	 * Sends the mapping for this index to the solr server
-	 * @return boolean Whether the put succeeded or not
+	 * Sets the solr document associated with this model instance
+	 * @param ASolrDocument $solrDocument the solr document
 	 */
-	public function putMapping() {
-		if ($this->mapping === null) {
-			$this->mapping = array();
-		}
-		if ($this->type === null) {
-			$type = get_class($this->owner);
-		}
-		else {
-			$type = $this->type;
-		}
-		$data = array(
-				$type => array(
-					"properties" => $this->mapping
-				)
-			);
-
-		$response = Yii::app()->{$this->componentID}->putMapping($this->indexName,$type, $data);
-		return $response;
-		if (!is_array($response) || !$response['ok']) {
-			return false;
-		}
-		return true;
+	public function setSolrDocument($solrDocument)
+	{
+		$this->_solrDocument = $solrDocument;
 	}
 
 	/**
-	 * Deletes the mapping for this index from the solr server
-	 * @return boolean Whether the delete succeeded or not
+	 * Gets the solr document associated with this model instance.
+	 * @param boolean $refresh whether to refresh the document, defaults to false
+	 * @return ASolrDocument the solr document
 	 */
-	public function deleteMapping() {
-		if ($this->type === null) {
-			$type = get_class($this->owner);
+	public function getSolrDocument($refresh = false)
+	{
+		if ($this->_solrDocument === null || $refresh) {
+			$className = $this->documentClass;
+			$this->_solrDocument = new $className();
+			foreach($this->getAttributes() as $attribute) {
+				$this->_solrDocument->{$attribute} = $this->getOwner()->{$attribute};
+			}
 		}
-		else {
-			$type = $this->type;
-		}
-		$response = Yii::app()->{$this->componentID}->deleteMapping($this->indexName,$type);
-		if (!is_array($response) || !$response['ok']) {
-			return false;
-		}
-		return true;
+		return $this->_solrDocument;
 	}
 
-
 	/**
-	 * Adds the record to the solr index
+	 * Adds the solr document to the index
+	 * @return boolean true if the document was indexed successfully
 	 */
 	public function index() {
-		if ($this->indexAttributes === null) {
-			$attributes = array();
-		}
-		else {
-			$attributes = $this->indexAttributes;
-		}
-		$data = array();
-		foreach($attributes as $attribute) {
-			$data[$attribute] = $this->owner->{$attribute};
-		}
-		if ($this->type === null) {
-			$type = get_class($this->owner);
-		}
-		else {
-			$type = $this->type;
-		}
-		$id = $this->owner->primaryKey;
-		if (is_array($id)) {
-			$id = implode("_",$id);
-		}
-		$response = Yii::app()->{$this->componentID}->index($this->indexName, $type, $id, $data);
-		if (!is_array($response) || !$response['ok']) {
-			return false;
-		}
-		return true;
+		$document = $this->getSolrDocument(true);
+		return $document->save();
+
 	}
 	/**
-	 * Searches for records using values from this model.
-	 * @return array An array of active records matching the criteria
+	 * Resets the scope
+	 * @return ASolrSearchable $this with the scope reset
 	 */
-	public function search() {
-		if ($this->indexAttributes === null) {
-			$attributes = array();
+	public function resetScope() {
+		$this->_solrCriteria = null;
+		return $this;
+	}
+
+	/**
+	 * Sets the solr criteria associated with this model
+	 * @param ASolrCriteria $solrCriteria the solr criteria
+	 */
+	public function setSolrCriteria($solrCriteria)
+	{
+		$this->_solrCriteria = $solrCriteria;
+	}
+
+	/**
+	 * Gets the solr criteria associated with this model
+	 * @return ASolrCriteria the solr criteria
+	 */
+	public function getSolrCriteria()
+	{
+		if ($this->_solrCriteria === null) {
+			$this->_solrCriteria = new ASolrCriteria();
 		}
-		else {
-			$attributes = $this->indexAttributes;
-		}
-		$query = array();
-		foreach($attributes as $attribute) {
-			$query[$attribute] = $this->owner->{$attribute};
-		}
-		print_r($query);
+		return $this->_solrCriteria;
 	}
 }

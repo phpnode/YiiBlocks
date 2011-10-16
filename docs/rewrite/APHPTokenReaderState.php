@@ -12,12 +12,7 @@ class APHPTokenReaderState extends AState {
 	const INTERFACE_DECLARATION = "InterfaceDeclaration";
 	const IMPLEMENTS_DECLARATION = "ImplementsDeclaration";
 	const EXTENDS_DECLARATION = "ExtendsDeclaration";
-	const PUBLIC_MEMBER_DECLARATION = "PublicMemberDeclaration";
-	const PROTECTED_MEMBER_DECLARATION = "ProtectedMemberDeclaration";
-	const PRIVATE_MEMBER_DECLARATION = "PrivateMemberDeclaration";
-	const STATIC_MEMBER_DECLARATION = "StaticMemberDeclaration";
-	const FINAL_MEMBER_DECLARATION = "FinalMethodDeclaration";
-	const ABSTRACT_MEMBER_DECLARATION = "AbstractMethodDeclaration";
+	const MEMBER_DECLARATION = "MemberDeclaration";
 	const CONST_MEMBER_DECLARATION = "ConstMemberDeclaration";
 	const PROPERTY_DECLARATION = "PropertyDeclaration";
 	const METHOD_DECLARATION = "MethodDeclaration";
@@ -30,7 +25,7 @@ class APHPTokenReaderState extends AState {
 	const CLASS_BODY = "ClassBody";
 	const FUNCTION_BODY = "FunctionBody";
 	const METHOD_BODY = "MethodBody";
-
+	const VALUE_ASSIGNMENT = "ValueAssignment";
 	/**
 	 * Parses a given token
 	 * @param array $token The token to parse
@@ -121,6 +116,11 @@ class APHPTokenReaderState extends AState {
 		$owner = $this->getOwner(); /* @var APHPTokenReader $owner */
 		$owner->getStatementStack()->clear();
 	}
+	/**
+	 * Triggered when the tokenizer reaches an assignment
+	 */
+	public function startAssignment() {
 
+	}
 
 }

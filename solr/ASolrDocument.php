@@ -171,8 +171,12 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 	 */
 	public function getSolrConnection()
 	{
-		if(self::$solr!==null)
+		if ($this->_connection !== null) {
+			return $this->_connection;
+		}
+		elseif(self::$solr!==null) {
 			return self::$solr;
+		}
 		else
 		{
 			self::$solr=Yii::app()->getDb();
@@ -182,7 +186,13 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 				throw new CDbException(Yii::t('yii','Solr Document requires a "solr" ASolrConnection application component.'));
 		}
 	}
-
+	/**
+	 * Sets the solr connection used by this solr document
+	 * @param ASolrConnection $connection the solr connection to use for this document
+	 */
+	public function setSolrConnection(ASolrConnection $connection) {
+		$this->_connection = $connection;
+	}
 	/**
 	 * Returns the solr query criteria associated with this model.
 	 * @param boolean $createIfNull whether to create a criteria instance if it does not exist. Defaults to true.
