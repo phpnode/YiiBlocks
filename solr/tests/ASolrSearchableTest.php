@@ -57,6 +57,7 @@ class ASolrSearchableTest extends CTestCase {
 			$connection = new ASolrConnection();
 			$connection->clientOptions->hostname = SOLR_HOSTNAME;
 			$connection->clientOptions->port = SOLR_PORT;
+			$connection->clientOptions->path = SOLR_PATH;
 			ASolrDocument::$solr = $connection;
 		}
 		return $connection;

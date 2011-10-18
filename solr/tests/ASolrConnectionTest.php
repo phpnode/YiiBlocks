@@ -14,6 +14,7 @@ class ASolrConnectionTest extends CTestCase {
 		$connection = new ASolrConnection();
 		$connection->clientOptions->hostname = SOLR_HOSTNAME;
 		$connection->clientOptions->port = SOLR_PORT;
+		$connection->clientOptions->path = SOLR_PATH;
 		$client = $connection->getClient();
 		$this->assertTrue($client instanceof SolrClient);
 		$connection->clientOptions = array();
@@ -27,6 +28,7 @@ class ASolrConnectionTest extends CTestCase {
 		$connection = new ASolrConnection();
 		$connection->clientOptions->hostname = SOLR_HOSTNAME;
 		$connection->clientOptions->port = SOLR_PORT;
+		$connection->clientOptions->path = SOLR_PATH;
 		$doc = new SolrInputDocument();
 
 		$doc->addField('id', 334455);
@@ -57,6 +59,7 @@ class ASolrConnectionTest extends CTestCase {
 		$connection = new ASolrConnection();
 		$connection->clientOptions->hostname = SOLR_HOSTNAME;
 		$connection->clientOptions->port = SOLR_PORT;
+		$connection->clientOptions->path = SOLR_PATH;
 		$doc = new SolrInputDocument();
 
 		$doc->addField('id', 334455);

@@ -45,6 +45,7 @@ class ASolrDocumentTest extends CTestCase {
 		$connection = new ASolrConnection();
 		$connection->clientOptions->hostname = SOLR_HOSTNAME;
 		$connection->clientOptions->port = SOLR_PORT;
+		$connection->clientOptions->path = SOLR_PATH;
 		ASolrDocument::$solr = $connection;
 		foreach($this->fixtureData() as $attributes) {
 
@@ -73,6 +74,7 @@ class ASolrDocumentTest extends CTestCase {
 		$connection = new ASolrConnection();
 		$connection->clientOptions->hostname = SOLR_HOSTNAME;
 		$connection->clientOptions->port = SOLR_PORT;
+		$connection->clientOptions->path = SOLR_PATH;
 		ASolrDocument::$solr = $connection;
 		$pkList = array();
 		foreach($this->fixtureData() as $attributes) {
@@ -105,6 +107,7 @@ class ASolrDocumentTest extends CTestCase {
 		$connection = new ASolrConnection();
 		$connection->clientOptions->hostname = SOLR_HOSTNAME;
 		$connection->clientOptions->port = SOLR_PORT;
+		$connection->clientOptions->path = SOLR_PATH;
 		ASolrDocument::$solr = $connection;
 		$pkList = array();
 		foreach($this->fixtureData() as $attributes) {
@@ -134,6 +137,7 @@ class ASolrDocumentTest extends CTestCase {
 		$connection = new ASolrConnection();
 		$connection->clientOptions->hostname = SOLR_HOSTNAME;
 		$connection->clientOptions->port = SOLR_HOSTNAME;
+		$connection->clientOptions->path = SOLR_PATH;
 		ASolrDocument::$solr = $connection;
 		foreach($this->fixtureData() as $attributes) {
 			$doc = ASolrDocument::model()->findByAttributes($attributes);
@@ -161,6 +165,7 @@ class ASolrDocumentTest extends CTestCase {
 		$connection = new ASolrConnection();
 		$connection->clientOptions->hostname = SOLR_HOSTNAME;
 		$connection->clientOptions->port = SOLR_PORT;
+		$connection->clientOptions->path = SOLR_PATH;
 		ASolrDocument::$solr = $connection;
 		foreach($this->fixtureData() as $attributes) {
 			$doc = ASolrDocument::model()->findByPk($attributes['id']);
