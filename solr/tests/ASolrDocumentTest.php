@@ -65,7 +65,7 @@ class ASolrDocumentTest extends CTestCase {
 		$model = ExampleExtendedSolrDocument::model();
 		$model->exampleScope(); // apply the scope
 		$models = $model->findAll();
-		$this->assertEquals(50, count($models));
+		$this->assertGreaterThan(49, count($models));
 	}
 	/**
 	 * Tests the find methods
